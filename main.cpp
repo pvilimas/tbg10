@@ -9,9 +9,9 @@
     - removed unused stuff
     
     - make branches for
-        - implementing NPCs
         - more lines of text
         - graphics scaling
+        - implementing NPCs
     in that order
 
     - other small changes
