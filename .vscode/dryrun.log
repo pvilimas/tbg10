@@ -1,0 +1,10 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/paul/Programming/tbg10'
+clear
+rm -rf build/tbg
+echo "Compiling..."
+g++-11 -std=c++20 -Wall -Wextra -pedantic -O2 main.cpp assetmanager.cpp command.cpp globals.cpp graphics.cpp item.cpp room.cpp textbasedgame.cpp timer.cpp -o build/main -I include -L lib -l raylib -l fmt -framework iokit -framework Cocoa -framework OpenGL
+mv build/main build/tbg
+./build/tbg
+make: Leaving directory `/Users/paul/Programming/tbg10'
+ 

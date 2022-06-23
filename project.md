@@ -1,0 +1,49 @@
+# TBG10 (the last one)
+## name TBD
+
+- Objectives:
+    - fully cross platform, download and click to run, no terminal bs
+    - no other messages in the terminal
+    - text based commands from the user, no other input
+    - output is text-based with a single image for each room (and maybe item, when inspected)
+- Implementation - SFML/C++
+- Style - GUI, 1 line of text input, 4 lines of output, 1 image
+- Features:
+    - The player
+        - Has inventory
+        - Can move around
+        - Can interact with NPCs - talk to them and sell items to them
+        - Beats the game upon reaching the final room
+    - Items
+        - Reside in rooms (or the player's inventory)
+        - Some can be picked up/dropped
+        - Some can be used by the player
+            - "Use key on door"
+            - "Unlock door"
+            - "Turn on light"
+        - Some can be traded to NPCs for other items
+    - Rooms
+        - Connect to other rooms via entrances
+        - Entrances can be blocked or opened by the player
+        - Standard directions for the base game: north south east west
+    - NPCs
+        - Can be spoken to
+        - Will trade items for other items
+    - Commands
+        - Only way of interacting with the game
+        - Command types:
+            - Quit Game
+            - Check Inventory
+            - Look Around
+            - Help
+            - Move <Direction>
+            - Take <Item>
+            - Drop <Item>
+            - Inspect <Item>
+            - Use <Item>
+            - Use <Item> on <Item>
+            - Talk to <NPC>
+            - Give <Item> to <NPC>
+        - Special commands
+- Implementation
+    - GameState is within game
