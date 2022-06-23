@@ -25,6 +25,9 @@ void Timer::CheckTime() {
     }
 }
 
+/*
+    potential bug here idk, maybe make it set to GetTime instead of 0
+*/
 void Timer::Reset() {
     lastRecorded = 0;
 }

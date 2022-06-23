@@ -5,7 +5,7 @@
     TODO:
 
     - document all existing code
-        - left off with graphics.cpp
+        - left off with item.cpp
     - standardize anything that needs it
     - removed unused stuff
     
@@ -29,7 +29,7 @@ int main() {
         or figure out how to launch without terminal then no problem
     */
     SetTraceLogLevel(LOG_WARNING);
-    
+
     /*
         needed to resolve asset filepaths
         maybe GetAppDir() instead or SearchAndSetResourceDir() - test later
