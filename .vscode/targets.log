@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Wed Jun 22 21:48:32 2022
+# Make data base, printed on Thu Jun 23 19:04:03 2022
 
 # Variables
 
@@ -41,6 +41,8 @@ _ = /usr/bin/make
 CFLAGS = -std=c++20 -Wall -Wextra -pedantic -O2
 # makefile (from `Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
+# environment
+GO111MODULE = on
 # makefile (from `Makefile', line 1)
 COMP = g++-11
 # environment
@@ -48,7 +50,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-ec87147d-b5f5-49c2-9b81-e156e76c8823.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-1f162d77-5394-44c0-952a-6462e1abd3a8.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -178,11 +180,11 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 44092
+VSCODE_PID = 89461
 # environment
 NVM_RC_VERSION = 
 # variable set hash-table stats:
-# Load=85/1024=8%, Rehash=0, Collisions=1/112=1%
+# Load=86/1024=8%, Rehash=0, Collisions=1/113=1%
 
 # Pattern-specific Variable Values
 
@@ -190,9 +192,9 @@ NVM_RC_VERSION =
 
 # Directories
 
-# . (device 16777222, inode 59347647): 27 files, no impossibilities.
+# . (device 16777222, inode 59347647): 28 files, no impossibilities.
 
-# 27 files, no impossibilities in 1 directories.
+# 28 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -352,6 +354,6 @@ graphics.cpp:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Wed Jun 22 21:48:32 2022
+# Finished Make data base on Thu Jun 23 19:04:03 2022
 
  

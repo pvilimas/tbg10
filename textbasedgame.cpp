@@ -341,21 +341,21 @@ std::vector<Command> TextBasedGame::getCommands() {
         /* settings */
 
         /* text scroll speed */
-        cmds.push_back(Command("Set Text Scroll Speed: Slow", "set (textspeed|ts) s(low)?", std::vector<std::string>{
+        cmds.push_back(Command("Set Text Scroll Speed: Slow", "set (textspeed|ts) (s(low)?)|(1)", std::vector<std::string>{
             "set textspeed slow",
             "set ts slow"
         }, [&]{
             graphics->changeTextSpeed(Graphics::TextSpeed::Slow);
             write(Messages::TextSpeedSet);
         }));
-        cmds.push_back(Command("Set Text Scroll Speed: Medium", "set (textspeed|ts) m(ed(ium)?)?", std::vector<std::string>{
+        cmds.push_back(Command("Set Text Scroll Speed: Medium", "set (textspeed|ts) (m(ed(ium)?)?)|(2)", std::vector<std::string>{
             "set textspeed med",
             "set ts med"
         }, [&]{
             graphics->changeTextSpeed(Graphics::TextSpeed::Medium);
             write(Messages::TextSpeedSet);
         }));
-        cmds.push_back(Command("Set Text Scroll Speed: Fast", "set (textspeed|ts) f(ast)?", std::vector<std::string>{
+        cmds.push_back(Command("Set Text Scroll Speed: Fast", "set (textspeed|ts) (f(ast)?)|(3)", std::vector<std::string>{
             "set textspeed fast",
             "set ts fast"
         }, [&]{
