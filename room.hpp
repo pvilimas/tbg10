@@ -8,12 +8,24 @@
 
 #include "globals.hpp"
 
+/*
+
+*/
 class Room {
 
     public:
 
+    /*
+        TODO add OnFirstEnter, and:
+            - add room.playerHasVisited
+            - keep track of that in game
+            
+        a type of room message, used to pass messages by type
+    */
     enum Message {
+        /* ex. you have entered the kitchen. */
         OnEnter,
+        /* ex. you are in the kitchen. there is a stove. */
         OnLook,
     };
 

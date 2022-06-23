@@ -11,16 +11,22 @@
     Manages all fonts and textures, stored with string keys in separate hashmaps.
     Takes care of all deallocation.
 */
-
 class AssetManager {
 
     private:
 
+    /* map of all stored fonts */
     std::unordered_map<std::string, Font> fonts;
+    /* map of all stored textures */
     std::unordered_map<std::string, Texture2D> textures;
 
     public:
+    /*
+        if ever needed, add more config stuff right here
+        like image default format or idk
+    */
 
+    /* consistent font size to load the fonts with */
     static constexpr int fontSize = 20;
 
     AssetManager();
