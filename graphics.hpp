@@ -29,6 +29,7 @@
     - Displaying hints, and autofilling them if/when user hits TAB
 
     - Rescaling window to match resolution (in future)
+    Only one of these will be running at a time, so static stuff is ok (static local vars and such)
 */
 class Graphics {
     public:

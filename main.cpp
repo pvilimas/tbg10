@@ -24,10 +24,16 @@
 
 int main() {
     
-    // for convenience
+    /*
+        for convenience - in the final app, probably want LOG_NONE
+        or figure out how to launch without terminal then no problem
+    */
     SetTraceLogLevel(LOG_WARNING);
-    // needed to resolve asset filepaths
-    // maybe GetAppDir() instead or SearchAndSetResourceDir() - test later
+    
+    /*
+        needed to resolve asset filepaths
+        maybe GetAppDir() instead or SearchAndSetResourceDir() - test later
+    */
     ChangeDirectory(GetApplicationDirectory());
     
     TextBasedGame tbg = TextBasedGame();
