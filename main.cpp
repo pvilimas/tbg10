@@ -4,14 +4,21 @@
 /*
     TODO:
 
-    - impl NPC
-    - hidden dialogoptions
+    - document all existing code
+    - standardize anything that needs it
+    - removed unused stuff
+    
+    - make branches for
+        - implementing NPCs
+        - more lines of text
+        - graphics scaling
+    in that order
+
+    - other small changes
+        - hidden dialogoptions
 
     current assumptions:
-
     - inv starts empty
-
-    - later: graphics scaling
 */
 
 int main() {
