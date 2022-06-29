@@ -1,8 +1,5 @@
 #include "globals.hpp"
 
-/*
-    Get the in-game string representation of a Direction
-*/
 std::string repr(Direction d) {
     switch(d) {
         case North: return "north";
@@ -13,9 +10,6 @@ std::string repr(Direction d) {
     }
 }
 
-/*
-    Get the reverse of a direction, the opposite way
-*/
 Direction reverse(Direction d) {
     switch(d) {
         case North: return South;

@@ -2,6 +2,7 @@
 
 /* ------- TEXTBASEDGAME ------- */
 
+
 TextBasedGame::TextBasedGame() {
     graphics = new Graphics();
     state = GameState::Playing;
@@ -70,16 +71,17 @@ TextBasedGame::~TextBasedGame() {
 void TextBasedGame::run() {
     static Timer backspaceTimer(0.1);
     while (!WindowShouldClose()) {
-        // Get char pressed (unicode character) on the queue
+        /*  Get char pressed (unicode character) on the queue  */
         int key = GetCharPressed();
 
-        // Check if more characters have been pressed on the same frame
+        /*  Check if more characters have been pressed on the same frame  */
         while (key > 0) {
-            // NOTE: Only allow keys in range [32..125]
+            /*  NOTE: Only allow keys in range [32..125]  */
             if ((key >= 32) && (key <= 125)) {
                 graphics->addCharIn((char) key);
             }
-            key = GetCharPressed();  // Check next character in the queue
+            /*  Check next character in the queue  */
+            key = GetCharPressed();
         }
 
         if (IsKeyDown(KEY_BACKSPACE) && backspaceTimer.IntervalPassed()) {
@@ -93,7 +95,7 @@ void TextBasedGame::run() {
                 eval(read());
             }
         } else if (IsKeyPressed(KEY_TAB)) {
-            /* also clears hint */
+            /*  also clears hint  */
             graphics->addHintToInput();
         }
 
@@ -179,7 +181,6 @@ void TextBasedGame::write(std::string s) {
     }
 }
 
-/* paginates output, ends with ..., waits for keypress, then displays next page */
 void TextBasedGame::write(std::vector<std::string> v) {
     std::queue<std::string> q;
     for (auto &str : v) {
@@ -218,7 +219,9 @@ void TextBasedGame::updateHint() {
         }
 
         for (auto &hint : cmd.getHints()) {
+            // return the first match found
             if (hint.substr(0, len) == input) {
+                // npos = "go to the end of the string"
                 graphics->setHint(hint.substr(len, std::string::npos));
                 return;
             }

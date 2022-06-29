@@ -8,7 +8,6 @@ Timer::Timer(double _interval, std::function<void()> _callback) {
     callback = _callback;
 }
 
-/* returns true if an interval has passed, then resets the interval */
 bool Timer::IntervalPassed() {
     double newTime = GetTime();
     if (lastRecorded + interval <= newTime) {
@@ -18,16 +17,12 @@ bool Timer::IntervalPassed() {
     return false;
 }
 
-/* checks interval, calls the callback if needed */
 void Timer::CheckTime() {
     if (IntervalPassed()) {
         callback();
     }
 }
 
-/*
-    potential bug here idk, maybe make it set to GetTime instead of 0
-*/
 void Timer::Reset() {
     lastRecorded = 0;
 }

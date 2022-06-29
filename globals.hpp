@@ -3,8 +3,6 @@
 
 #include <string>
 
-#define REPR(x) (std::string((#x)))
-
 /*
     TODO
     rework globals into a class, with static instances maybe
@@ -23,7 +21,14 @@ enum Direction {
     Invalid
 };
 
+/*
+    Get the in-game string representation of a Direction
+*/
 std::string repr(Direction);
+
+/*
+    Get the reverse of a direction, the opposite way
+*/
 Direction reverse(Direction);
 
 #endif /* __GLOBALS__ */

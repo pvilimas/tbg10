@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Thu Jun 23 19:04:03 2022
+# Make data base, printed on Tue Jun 28 20:31:39 2022
 
 # Variables
 
@@ -50,7 +50,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-1f162d77-5394-44c0-952a-6462e1abd3a8.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-b6009ccd-4198-426b-be06-f6219f55e3f6.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -180,7 +180,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 89461
+VSCODE_PID = 66214
 # environment
 NVM_RC_VERSION = 
 # variable set hash-table stats:
@@ -354,6 +354,6 @@ graphics.cpp:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Thu Jun 23 19:04:03 2022
+# Finished Make data base on Tue Jun 28 20:31:39 2022
 
  

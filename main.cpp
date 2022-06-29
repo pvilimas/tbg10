@@ -7,6 +7,13 @@
     - document all existing code
         - left off with item.cpp
     - standardize anything that needs it
+    - clean up code
+        - var naming
+            - ThisCasePerhaps?
+        - _vars for constructor: var = _var
+        - inline
+        - (...) const {...}
+        - use references where needed
     - removed unused stuff
     
     - make branches for
