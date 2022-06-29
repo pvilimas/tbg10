@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "raylib.h"
+#include "raylib/raylib.h"
 
 /*
     small utility class that returns true every x seconds (ignoring any granularity with how often it's called)

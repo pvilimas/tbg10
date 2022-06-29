@@ -1,20 +1,25 @@
-#include "raylib.h"
+#include "raylib/raylib.h"
 #include "textbasedgame.hpp"
 
 /*
     TODO:
 
-    - document all existing code
-        - left off with item.cpp
-    - standardize anything that needs it
     - clean up code
         - var naming
-            - ThisCasePerhaps?
+            - ClassName
+            - StaticMethod
+            - PublicMethod
+            - PrivateMethod
+            - StaticVariable
+            - publicVariable
+            - _privateVariable
+        - standardize anything that needs it
         - _vars for constructor: var = _var
         - inline
         - (...) const {...}
         - use references where needed
     - removed unused stuff
+    - deal with any other TODOs
     
     - make branches for
         - more lines of text

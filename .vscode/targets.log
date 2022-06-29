@@ -6,8 +6,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
+ 
 
-# Make data base, printed on Tue Jun 28 20:31:39 2022
+# Make data base, printed on Tue Jun 28 23:26:11 2022
 
 # Variables
 
@@ -17,10 +18,11 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 ?F = $(notdir $?)
 # environment
 OPAM_SWITCH_PREFIX = /Users/paul/.opam/default
+ 
 # environment
 OCAML_TOPLEVEL_PATH = /Users/paul/.opam/default/lib/toplevel
 # makefile (from `Makefile', line 4)
-SRC = main.cpp assetmanager.cpp command.cpp globals.cpp graphics.cpp item.cpp room.cpp textbasedgame.cpp timer.cpp
+SRC = src/*.cpp
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -50,7 +52,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-b6009ccd-4198-426b-be06-f6219f55e3f6.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-401d5d49-374e-4c5b-b34b-89e219bce4dd.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -180,7 +182,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 66214
+VSCODE_PID = 71087
 # environment
 NVM_RC_VERSION = 
 # variable set hash-table stats:
@@ -192,15 +194,22 @@ NVM_RC_VERSION =
 
 # Directories
 
-# . (device 16777222, inode 59347647): 28 files, no impossibilities.
+# . (device 16777222, inode 59347647): 12 files, no impossibilities.
+# src (device 16777222, inode 65579421): 19 files, no impossibilities.
 
-# 28 files, no impossibilities in 1 directories.
+# 31 files, no impossibilities in 2 directories.
 
 # Implicit Rules
 
 # No implicit rules.
 
 # Files
+
+# Not a target:
+src/assetmanager.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 all: clean build run
 #  Command-line target.
@@ -212,13 +221,19 @@ all: clean build run
 # Load=0/32=0%, Rehash=0, Collisions=0/2=0%
 
 # Not a target:
-textbasedgame.cpp:
+src/textbasedgame.cpp:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
 # Not a target:
-globals.cpp:
+src/room.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/graphics.cpp:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -226,34 +241,41 @@ globals.cpp:
 # Not a target:
 .SUFFIXES:
 #  Implicit rule search has not been done.
+ 
 #  Modification time never checked.
 #  File has not been updated.
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-21 21:41:50
+#  Last modified 2022-06-28 23:24:33
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
+# Not a target:
+src/command.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
 build:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 20):
+#  commands to execute (from `Makefile', line 12):
 	@echo "Compiling..."
 	
 
 # Not a target:
-main.cpp:
+src/globals.cpp:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
 # Not a target:
-timer.cpp:
+src/timer.cpp:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -264,32 +286,14 @@ timer.cpp:
 #  Modification time never checked.
 #  File has not been updated.
 
-# Not a target:
-command.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
-assetmanager.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
 run: main
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 23):
+#  commands to execute (from `Makefile', line 15):
 	mv build/main build/tbg
 	./build/tbg
 	
-
-# Not a target:
-room.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
 
 clean:
 #  Implicit rule search has not been done.
@@ -315,31 +319,30 @@ clean:
 # ? := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=1/10=10%
-#  commands to execute (from `Makefile', line 27):
+#  commands to execute (from `Makefile', line 19):
 	clear
 	rm -rf build/tbg
 	
 
- 
-main: main.cpp assetmanager.cpp command.cpp globals.cpp graphics.cpp item.cpp room.cpp textbasedgame.cpp timer.cpp
+# Not a target:
+src/main.cpp:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 17):
+
+# Not a target:
+src/item.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+main: src/assetmanager.cpp src/command.cpp src/globals.cpp src/graphics.cpp src/item.cpp src/main.cpp src/room.cpp src/textbasedgame.cpp src/timer.cpp
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 9):
 	$(COMP) $(CFLAGS) $^ -o build/$@ $(LFLAGS)
 	
-
-# Not a target:
-item.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
-graphics.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
 
 # files hash-table stats:
 # Load=17/1024=2%, Rehash=0, Collisions=0/44=0%
@@ -354,6 +357,6 @@ graphics.cpp:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Tue Jun 28 20:31:39 2022
+# Finished Make data base on Tue Jun 28 23:26:11 2022
 
  

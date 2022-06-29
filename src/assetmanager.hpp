@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "raylib.h"
+#include "raylib/raylib.h"
 
 /*
     Manages all fonts and textures, stored with string keys in separate hashmaps.

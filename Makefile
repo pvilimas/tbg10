@@ -1,15 +1,7 @@
 COMP = g++-11
 CFLAGS = -std=c++20 -Wall -Wextra -pedantic -O2
 LFLAGS = -I include -L lib -l raylib -l fmt -framework iokit -framework Cocoa -framework OpenGL
-SRC = main.cpp \
-	assetmanager.cpp \
-	command.cpp \
-	globals.cpp \
-	graphics.cpp \
-	item.cpp \
-	room.cpp \
-	textbasedgame.cpp \
-	timer.cpp
+SRC = src/*.cpp
 
 all: clean build run
 
