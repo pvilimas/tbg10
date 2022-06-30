@@ -73,7 +73,7 @@ class Graphics {
     AssetManager assets;
 
     /*  current size of the window, xy  */
-    Vector2 winSize;
+    Vector2 windowSize;
     
     /*  what the player currently has typed in their box  */
     std::vector<char> textIn;
@@ -88,7 +88,7 @@ class Graphics {
     std::string textInHint;
     
     /*  name of the image we are currently drawing, within assetmanager  */
-    std::string currImage;
+    std::string currentImage;
     
     /*  used to draw screen, and allows for scaling if needed later  */
     RenderTexture2D renderTexture;
@@ -126,58 +126,58 @@ class Graphics {
         window title (invisible with FLAG_WINDOW_UNDECORATED btw)
         also actual title if WIN_UNDEC is used
     */
-    static inline constexpr const char* titleText = "Textbasedgame";
+    static inline constexpr const char* TitleText = "Textbasedgame";
     
     /*
         prompt to display before user input, should always be "> "
         the length is most likely accounted for everywhere (prob no risk of segfault if diff len)
     */
-    static inline constexpr const char* prompt = "> ";
+    static inline constexpr const char* PlayerPrompt = "> ";
 
     /*  default and initial window width  */
-    static inline constexpr int defaultWinWidth = 644;
+    static inline constexpr int DefaultWinWidth = 644;
 
     /*  default and initial window height  */
-    static inline constexpr int defaultWinHeight = 506;
+    static inline constexpr int DefaultWinHeight = 506;
 
     /*
         how many characters the player can type in their box
         if len(textIn) = this, then any keyinput besides BACKSPACE will be ignored
         not including "> " which makes it 65
     */
-    static inline constexpr int lineInLimit = 63;
+    static inline constexpr int LineInLimit = 63;
 
     /*
         how many characters can go on each line of game text
         not sure about overflow/wrapping (drawing 66 characters)
         don't try that pls, make sure all messages do not overflow
     */
-    static inline constexpr int lineOutLimit = 65;
+    static inline constexpr int LineOutLimit = 65;
 
     /*  how many lines of game text there are  */
-    static inline constexpr int lineOutCount = 4;
+    static inline constexpr int LineOutCount = 4;
 
     /*  the color of the frame/border  */
-    static inline constexpr Color frameColor = Color {0xAA, 0xAA, 0xAA, 255};
+    static inline constexpr Color FrameColor = Color {0xAA, 0xAA, 0xAA, 255};
 
     /*  the line thickness of the frame/border  */
-    static inline constexpr int frameThick = 2;
+    static inline constexpr int FrameThick = 2;
     /*
         the font size used to draw fonts - should be the same as AssetManager::fontSize,
         which isn't linked to this. that is used to load them, so they should be the same.
     */
-    static inline constexpr int fontSize = 20;
+    static inline constexpr int FontSize = 20;
     
     /*
         the font spacing used to draw fonts - see above/todos
     */
-    static inline constexpr float fontSpacing = 0.6;
+    static inline constexpr float FontSpacing = 0.6;
 
     /*
         converts a vector of chars to a string
         thin wrapper around string(v.begin, v.end)
     */
-    static std::string makeStr(std::vector<char> v);
+    static std::string MakeStr(std::vector<char>& v);
 
     /*
         Graphics constructor, does the following:
@@ -204,7 +204,7 @@ class Graphics {
         Scales the window size to the nearest integer multiple of (644, 506)
         based on screen resolution
     */
-    void normalizeWindowSize();
+    void NormalizeWindowSize();
 
     /*
         draws everything to the screen, and some other stuff, including:
@@ -219,68 +219,68 @@ class Graphics {
         future additions:
         - normalize window size + scaling render texture
     */
-    void draw();
+    void Draw();
 
     /*
         draws the cursor
         blinking is done with frameCount
         automatically updates based on the current cursor style
     */
-    void drawCursor();
+    void DrawCursor();
 
     /*
         returns what the player has typed
         TBG calls this method when ENTER is pressed
     */
-    std::string getTextIn();
+    std::string GetTextIn();
     
     /*  get the current game text on a specific line  */
-    std::string getTextOut(int line);
+    std::string GetTextOut(int line);
     
     /*  set the player's text to whatever  */
-    void setTextIn(std::string s);
+    void SetTextIn(std::string s);
 
     /*  set the game text on a specific line  */
-    void setTextOut(std::string s, int line);
+    void SetTextOut(std::string s, int line);
 
     /*  set the player hint  */
-    void setHint(std::string s);
+    void SetHint(std::string s);
     
     /*
         append the rest of the hint to the player input, and clear the hint
         called when user hits tab
     */
-    void addHintToInput();
+    void AddHintToInput();
     
     
     /*  add a character to the player text  */
-    void addCharIn(char c);
+    void AddCharIn(char c);
     
     /*  remove a character from the end of player text  */
-    void delCharIn();
+    void DelCharIn();
     
     /*  change the text speed setting  */
-    void changeTextSpeed(TextSpeed newSpeed);
+    void ChangeTextSpeed(TextSpeed newSpeed);
     
     /*  change the cursor style setting  */
-    void changeCursorStyle(CursorStyle newStyle);
+    void ChangeCursorStyle(CursorStyle newStyle);
 
     /*
         is the text scroll queue empty?
         used to check if queue should be purged when user hits ENTER
     */
-    bool queueEmpty();
+    bool IsQueueEmpty();
 
     /*
         on the next frame after this is called, purge the text scroll queue
         - see above
     */
-    void dumpText();
+    void DumpText();
 
     /*
         set the current image (parameter is whatever the image name is within assetmanager)
     */
-    void setImage(std::string newImageName);
+    void SetBackgroundImage(std::string newImageName);
 
 };
 

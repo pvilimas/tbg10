@@ -13,7 +13,7 @@
 /*
     Represents a direction the player can move in
 */
-enum Direction {
+enum class Direction {
     North,
     South,
     East,
@@ -24,11 +24,11 @@ enum Direction {
 /*
     Get the in-game string representation of a Direction
 */
-std::string repr(Direction);
+std::string ReprDirection(Direction& d);
 
 /*
     Get the reverse of a direction, the opposite way
 */
-Direction reverse(Direction);
+Direction ReverseDirection(Direction& d);
 
 #endif /* __GLOBALS__ */

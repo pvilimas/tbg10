@@ -83,35 +83,35 @@ class Room {
     ~Room();
 
     /*  gets the internal name of the room  */
-    std::string getName();
+    std::string& GetName();
 
     /*  gets the in-game string representation of the room  */
-    std::string getRepr();
+    std::string& GetRepr();
 
     /*  gets a specific message type  */
-    std::string getMessage(Message mtype);
+    std::string& GetMessage(Message mtype);
 
     /*
         gets the name of the room in that direction from this room
         null value = empty string
     */
-    std::string getPath(Direction d);
+    std::string& GetPath(Direction d);
     
     /*
         sets the name of the room in that direction from this room
         null value = empty string
     */
-    void setPath(Direction d, std::string other);
+    void SetPath(Direction d, std::string other);
 
     
     /*  get the list of names for every item in the room  */
-    std::vector<std::string> getItems();
+    std::vector<std::string>& GetItems();
     
     /*  adds an item's name to the list of items in the room  */
-    void addItem(std::string itemName);
+    void AddItem(std::string itemName);
     
     /*  removes an item's name from the list of items in the room  */
-    void removeItem(std::string itemName);
+    void RemoveItem(std::string itemName);
 
 };
 

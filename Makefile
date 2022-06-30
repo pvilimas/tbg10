@@ -12,9 +12,9 @@ build:
 	@echo "Compiling..."
 
 run: main
-	mv build/main build/tbg
-	./build/tbg
+	mv build/main build/game
+	./build/game
 
 clean:
 	clear
-	rm -rf build/tbg
+	rm -rf build/game

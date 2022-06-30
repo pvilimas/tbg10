@@ -6,7 +6,6 @@ AssetManager::AssetManager() {
 }
 
 AssetManager::~AssetManager() {
-    
     for (auto& [_, f] : fonts) {
         UnloadFont(f);
     }
@@ -20,17 +19,18 @@ AssetManager::~AssetManager() {
 }
 
 void AssetManager::CreateFont(const char *name, const char *filename) {
-    Font font = LoadFontEx(filename, fontSize, nullptr, 0);
+    Font font = LoadFontEx(filename, AssetManager::FontSize, nullptr, 0);
     fonts.insert(
         std::make_pair(std::string(name), font)
     );
 }
 
-Font AssetManager::GetFont(const char *name) {
+Font& AssetManager::GetFont(const char *name) {
     return fonts.at(std::string(name));
 }
 
 void AssetManager::DeleteFont(const char *name) {
+    UnloadFont(fonts.at(name));
     fonts.erase(std::string(name));
 }
 
@@ -41,10 +41,11 @@ void AssetManager::CreateTexture(const char *name, const char *filename) {
     );
 }
 
-Texture2D AssetManager::GetTexture(const char *name) {
+Texture2D& AssetManager::GetTexture(const char *name) {
     return textures.at(std::string(name));
 }
 
 void AssetManager::DeleteTexture(const char *name) {
+    UnloadTexture(textures.at(name));
     textures.erase(std::string(name));
 }

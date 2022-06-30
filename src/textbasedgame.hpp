@@ -152,12 +152,12 @@ class TextBasedGame {
         Player();
 
         /*  returns a list of names of all items in the player's inventory  */
-        std::vector<std::string> getInventory();
+        std::vector<std::string>& GetInventory();
 
-        /* these methods assume item is or is not in inv already */
+        /*  these methods assume item is or is not in inv already  */
 
-        void addItemToInv(std::string itemName);
-        void removeItemFromInv(std::string itemName);
+        void AddItemToInv(std::string itemName);
+        void RemoveItemFromInv(std::string itemName);
 
     };
 
@@ -225,12 +225,12 @@ class TextBasedGame {
         - add hint if TAB is pressed and there's a hint
         and draws graphics
     */
-    void run();
+    void Run();
     /*
         change the gamestate
         contains initialization logic (and status messages) based on old state and new state
     */
-    void changeState(GameState newState);
+    void ChangeState(GameState newState);
 
     /* setup */
 
@@ -246,13 +246,13 @@ class TextBasedGame {
         TODO better argument names, but maybe this is good for me
         TODO rename setup functions to setup...?
     */
-    void linkRooms(std::string a, Direction d, std::string b, bool bothWays = true);
+    void LinkRooms(std::string a, Direction d, std::string b, bool bothWays = true);
 
     /*  adds an item to a room's item list, given their names  */
-    void addItemToRoom(std::string itemName, std::string roomName);
+    void AddItemToRoom(std::string itemName, std::string roomName);
    
     /*  adds an item to the player's inventory (mainly used for setup like addItemToRoom is, i think)  */
-    void addItemToInventory(std::string itemName);
+    void AddItemToInventory(std::string itemName);
 
     /*  IO functions  */
 
@@ -260,34 +260,32 @@ class TextBasedGame {
         returns whatever the player has currently typed, does not change it
         (should be) only ever used with TBG::eval()
     */
-    std::string read();
+    std::string Read();
 
     /*
         evaluates the given string, passing it through a list of all commands (from TBG::getCommands())
         (should be) only ever used with TBG::read()
     */
-    void eval(std::string);
+    void Eval(std::string input);
     
-    /*
-        literally just a call to TBG::write("")
-    */
-    void clear();
+    /*  literally just a call to TBG::write(""), clears everything  */
+    void Clear();
     
     /*
         writes a string to textOut, splits it into lines
         only writes 4 lines (or however many are on the screen)
     */
-    void write(std::string);
+    void Write(std::string str);
 
     /*
         writes a list of strings to textOut - has an internal loop that goes until it's done
         paginates output, ends with ..., waits for keypress, then displays next page
         the ... must be added manually (for now) (TODO)
     */
-    void write(std::vector<std::string>);
+    void Write(std::vector<std::string> strs);
 
     /*  looks through the hints of every command in getCommands and the first one to match is displayed  */
-    void updateHint();
+    void UpdateHint();
 
     /*
         NOTE: paginate is too much work rn, but the old code is on discord
@@ -304,7 +302,7 @@ class TextBasedGame {
         - what the player has in their inventory - same as above, with dropping items
         - other stuff, probably
     */
-    std::vector<Command> getCommands();
+    std::vector<Command> GetCommands();
 
     /* player interaction */
 
@@ -312,7 +310,7 @@ class TextBasedGame {
         try to move in the given direction, print either "you went xyz" or Messages::BlockedDir if
         you can't go that way
     */
-    void tryMove(Direction);
+    void TryMove(Direction d);
 
     /*
         try to take the given item, either print that you took it, or one of several errors:
@@ -321,7 +319,7 @@ class TextBasedGame {
         - CannotCarry if the carry flag (lol) isn't set
         - UnknownError if something unexpected happens
     */
-    void tryTakeItem(std::string);
+    void TryTakeItem(std::string itemName);
 
     /*
         try to drop the given item, either print successful drop msg or:
@@ -331,18 +329,18 @@ class TextBasedGame {
             - ez fix is don't allow any dupes anywhere
         - UnknownError if something else happens
     */
-    void tryDropItem(std::string);
+    void TryDropItem(std::string itemName);
 
     /*
         try to inspect the item, if you can then print the msg, otherwise:
         - InvalidInspect if it's nowhere to be seen (inv or currentroom)
     */
-    void tryInspectItem(std::string);
+    void TryInspectItem(std::string itemName);
 
     /*  is this item in this room?  */
-    bool itemInRoom(std::string itemName, std::string roomName);
+    bool IsItemInRoom(std::string itemName, std::string roomName);
     /*  is this item in the player's inventory?  */
-    bool itemInInv(std::string itemName);
+    bool IsItemInInv(std::string itemName);
 
     /*
         not to be confused with Item::getRepr(), which this calls
@@ -352,7 +350,7 @@ class TextBasedGame {
         - some shoes
         TODO plurals, like some ^
     */
-    std::string reprItem(std::string itemName);
+    std::string FullItemRepr(std::string itemName);
 
     /*
         gets a string representation of the player's inventory - cases below:
@@ -363,17 +361,17 @@ class TextBasedGame {
         - 4+ items -> Your inventory contains <a lamp>, <an orange>, ..., and <some jews>.
         TODO optimize these two functions with stringstream>>
     */
-    std::string reprInv();
+    std::string InventoryRepr();
     
     /*
-        gets a string representation of the items in the current room - cases:
+        gets a string representation of the list of items in the current room - cases:
         - 0 items -> There's nothing useful in here.
         - 1 item -> You see <a lamp>.
         - 2 items -> You see <a lamp> and <an orange>.
         - 3 items -> You see <a lamp>, <an orange>, and <some jews>.
         - 4+ items -> You see <a lamp>, <an orange>, ..., and <some jews>.
     */
-    std::string reprCurrentRoom();
+    std::string CurrentRoomRepr();
 
 };
 

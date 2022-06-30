@@ -1,6 +1,6 @@
 #include "graphics.hpp"
 
-std::string Graphics::makeStr(std::vector<char> v) {
+std::string Graphics::MakeStr(std::vector<char>& v) {
     return std::string(v.begin(), v.end());
 }
 
@@ -8,7 +8,7 @@ Graphics::Graphics() {
 
     /* init everything */
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
-    InitWindow(defaultWinWidth, defaultWinHeight, Graphics::titleText);
+    InitWindow(Graphics::DefaultWinWidth, DefaultWinHeight, Graphics::TitleText);
     
     /* only way to exit is by typing exit/q */
     SetExitKey(KEY_NULL);
@@ -67,9 +67,9 @@ Graphics::Graphics() {
     /*
         initialize everything else
     */
-    winSize = Vector2 { defaultWinWidth, defaultWinHeight };
-    currImage = "Kitchen";
-    renderTexture = LoadRenderTexture(winSize.x, winSize.y);
+    windowSize = Vector2 { Graphics::DefaultWinWidth, Graphics::DefaultWinHeight };
+    currentImage = "Kitchen";
+    renderTexture = LoadRenderTexture(windowSize.x, windowSize.y);
 }
 
 Graphics::~Graphics() {
@@ -77,7 +77,7 @@ Graphics::~Graphics() {
     CloseWindow();
 }
 
-void Graphics::normalizeWindowSize() {
+void Graphics::NormalizeWindowSize() {
 
     float targetW, targetH;
     float monitor = GetCurrentMonitor();
@@ -85,35 +85,35 @@ void Graphics::normalizeWindowSize() {
     float h = GetMonitorHeight(monitor);
     std::cout << fmt::format("w={}, h={}", w, h) << std::endl;
     
-    if (w != winSize.x || h != winSize.y) {
+    if (w != windowSize.x || h != windowSize.y) {
         // arbitrary as fuck
         if (w >= 2560 && h >= 1600) {
             resolutionScaleFactor = Resolution::High4k;
-            targetW = defaultWinWidth * 2;
-            targetH = defaultWinHeight * 2;
+            targetW = Graphics::DefaultWinWidth * 2;
+            targetH = Graphics::DefaultWinHeight * 2;
         } else {
             resolutionScaleFactor = Resolution::Low1080p;
-            targetW = defaultWinWidth;
-            targetH = defaultWinHeight;
+            targetW = Graphics::DefaultWinWidth;
+            targetH = Graphics::DefaultWinHeight;
         }
 
-        if (targetW != winSize.x || targetH != winSize.y) {
-            winSize = Vector2 { targetW, targetH };
+        if (targetW != windowSize.x || targetH != windowSize.y) {
+            windowSize = Vector2 { targetW, targetH };
             SetWindowSize(targetW, targetH);
             // SetWindowPosition(
-            //   (w/2) - (winSize.x/2), 
-            //   (h/2) - (winSize.y/2) 
+            //   (w/2) - (windowSize.x/2), 
+            //   (h/2) - (windowSize.y/2) 
             // );
             UnloadRenderTexture(renderTexture);
-            renderTexture = LoadRenderTexture(winSize.x, winSize.y);
+            renderTexture = LoadRenderTexture(windowSize.x, windowSize.y);
         }
     }
 
 }
 
-void Graphics::draw() {
+void Graphics::Draw() {
 
-    // normalizeWindowSize();
+    // NormalizeWindowSize();
 
     bool addCharThisFrame = false;
     
@@ -126,7 +126,7 @@ void Graphics::draw() {
     BeginTextureMode(renderTexture);
     
     if (purgeQueueNextFrame) {
-        for (int i = 0; i < Graphics::lineOutCount; i++) {
+        for (int i = 0; i < Graphics::LineOutCount; i++) {
             while (!textOutScroll.at(i).empty()) {
                 char c = textOutScroll.at(i).front();
                 textOut[i].push_back(c);
@@ -135,7 +135,7 @@ void Graphics::draw() {
         }
         purgeQueueNextFrame = false;
     } else if (addCharThisFrame) {
-        for (int i = 0; i < Graphics::lineOutCount; i++) {
+        for (int i = 0; i < Graphics::LineOutCount; i++) {
             if (!textOutScroll.at(i).empty()) {
                 char c = textOutScroll.at(i).front();
                 textOut[i].push_back(c);
@@ -151,33 +151,33 @@ void Graphics::draw() {
     DrawRectangleRec({0, 476, 644, 30}, Color {0x20, 0x20, 0x20, 255});
 
     // picture
-    DrawTexture(assets.GetTexture(currImage.c_str()), 2, 24, WHITE);
+    DrawTexture(assets.GetTexture(currentImage.c_str()), 2, 24, WHITE);
 
     // title - centered
-    //DrawTextEx(assets.GetFont("italic"), titleText, {(winSize.x - MeasureTextEx(assets.GetFont("italic"), titleText, fontSize, fontSpacing).x) / 2, 2}, fontSize, fontSpacing, LIGHTGRAY);
+    //DrawTextEx(assets.GetFont("italic"), Graphics::TitleText, {(windowSize.x - MeasureTextEx(assets.GetFont("italic"), Graphics::TitleText, fontSize, fontSpacing).x) / 2, 2}, fontSize, fontSpacing, LIGHTGRAY);
     // title not centered
-    DrawTextEx(assets.GetFont("title"), titleText, {4, 2}, fontSize, fontSpacing, RAYWHITE);
+    DrawTextEx(assets.GetFont("title"), Graphics::TitleText, {4, 2}, Graphics::FontSize, Graphics::FontSpacing, RAYWHITE);
     // output lines
-    DrawTextEx(assets.GetFont("italic"), makeStr(textOut[0]).c_str(), {6, 388}, fontSize, fontSpacing, LIGHTGRAY);
-    DrawTextEx(assets.GetFont("italic"), makeStr(textOut[1]).c_str(), {6, 410}, fontSize, fontSpacing, LIGHTGRAY);
-    DrawTextEx(assets.GetFont("italic"), makeStr(textOut[2]).c_str(), {6, 432}, fontSize, fontSpacing, LIGHTGRAY);
-    DrawTextEx(assets.GetFont("italic"), makeStr(textOut[3]).c_str(), {6, 454}, fontSize, fontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[0]).c_str(), {6, 388}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[1]).c_str(), {6, 410}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[2]).c_str(), {6, 432}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[3]).c_str(), {6, 454}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
     // input line
-    DrawTextEx(assets.GetFont("normal"), ("> " + makeStr(textIn)).c_str(), {6, 480}, fontSize, fontSpacing, RAYWHITE);
+    DrawTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Vector2 { 6, 480 }, Graphics::FontSize, Graphics::FontSpacing, RAYWHITE);
 
     // hint
-    DrawTextEx(assets.GetFont("normal"), (std::string(textIn.size() + 2, ' ') + textInHint).c_str(), {6, 480}, fontSize, fontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("normal"), (std::string(textIn.size() + 2, ' ') + textInHint).c_str(), Vector2 { 6, 480 }, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
 
     // title border
-    DrawRectangleLinesEx(Rectangle {0, 0, 644, 24}, frameThick, frameColor);
+    DrawRectangleLinesEx(Rectangle {0, 0, 644, 24}, Graphics::FrameThick, Graphics::FrameColor);
     // picture border
-    DrawRectangleLinesEx(Rectangle {0, 22, 644, 364}, frameThick, frameColor);
+    DrawRectangleLinesEx(Rectangle {0, 22, 644, 364}, Graphics::FrameThick, Graphics::FrameColor);
     // text border
-    DrawRectangleLinesEx(Rectangle {0, 384, 644, 120}, frameThick, frameColor);
+    DrawRectangleLinesEx(Rectangle {0, 384, 644, 120}, Graphics::FrameThick, Graphics::FrameColor);
     // I/O separator
-    DrawLineEx({0, 480}, {644, 480}, frameThick, frameColor);
+    DrawLineEx({0, 480}, {644, 480}, Graphics::FrameThick, Graphics::FrameColor);
     
-    drawCursor();
+    DrawCursor();
     EndTextureMode();
     
     BeginDrawing();
@@ -200,15 +200,15 @@ void Graphics::draw() {
     frameCount++;
 }
 
-void Graphics::drawCursor() {
+void Graphics::DrawCursor() {
     
     // cursor blink
     if (frameCount % 60 > 30) {
         return;
     }
 
-    Vector2 textSize = MeasureTextEx(assets.GetFont("normal"), ("> " + makeStr(textIn)).c_str(), fontSize, fontSpacing);
-    Vector2 singleCharSize = MeasureTextEx(assets.GetFont("normal"), " ", fontSize, fontSpacing);
+    Vector2 textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
+    Vector2 singleCharSize = MeasureTextEx(assets.GetFont("normal"), " ", Graphics::FontSize, Graphics::FontSpacing);
     
     switch(cursorStyle) {
         case CursorStyle::VerticalBar: {
@@ -218,8 +218,8 @@ void Graphics::drawCursor() {
             return;
         }
         case CursorStyle::Underline: {
-            if (textIn.size() == Graphics::lineInLimit) {
-                textSize = MeasureTextEx(assets.GetFont("normal"), (">" + makeStr(textIn)).c_str(), fontSize, fontSpacing);
+            if (textIn.size() == Graphics::LineInLimit) {
+                textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
             }
             float x = textSize.x + 7;
             float y = textSize.y + 480;
@@ -227,8 +227,8 @@ void Graphics::drawCursor() {
             return;
         }
         case CursorStyle::OutlineBox: {
-            if (textIn.size() == Graphics::lineInLimit) {
-                textSize = MeasureTextEx(assets.GetFont("normal"), (">" + makeStr(textIn)).c_str(), fontSize, fontSpacing);
+            if (textIn.size() == Graphics::LineInLimit) {
+                textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
             }
             float x = textSize.x + 7;
             float y = textSize.y + 480;
@@ -236,8 +236,8 @@ void Graphics::drawCursor() {
             return;
         }
         case CursorStyle::TransparentBox: {
-            if (textIn.size() == Graphics::lineInLimit) {
-                textSize = MeasureTextEx(assets.GetFont("normal"), (">" + makeStr(textIn)).c_str(), fontSize, fontSpacing);
+            if (textIn.size() == Graphics::LineInLimit) {
+                textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
             }
             float x = textSize.x + 7;
             float y = textSize.y + 480;
@@ -247,20 +247,20 @@ void Graphics::drawCursor() {
     }
 }
 
-std::string Graphics::getTextIn() {
-    return makeStr(textIn);
+std::string Graphics::GetTextIn() {
+    return MakeStr(textIn);
 }
 
-std::string Graphics::getTextOut(int line) {
-    return makeStr(textOut[line]);
+std::string Graphics::GetTextOut(int line) {
+    return MakeStr(textOut[line]);
 }
 
-void Graphics::setTextIn(std::string str) {
+void Graphics::SetTextIn(std::string str) {
     std::string s(str);
     textIn = std::vector<char>(s.begin(), s.end());
 }
 
-void Graphics::setTextOut(std::string str, int line) {
+void Graphics::SetTextOut(std::string str, int line) {
     textOutScroll.at(line) = std::queue<char>();
     textOut[line].clear();
     //std::string s(str);
@@ -270,38 +270,38 @@ void Graphics::setTextOut(std::string str, int line) {
     }
 }
 
-void Graphics::setHint(std::string s) {
-    textInHint = std::string(s);
+void Graphics::SetHint(std::string s) {
+    textInHint = s;
 }
 
-void Graphics::addHintToInput() {
+void Graphics::AddHintToInput() {
     for (char c : textInHint) {
         textIn.push_back(c);
     }
     textInHint.clear();
 }
 
-void Graphics::addCharIn(char c) {
-    if (textIn.size() < lineInLimit) {
+void Graphics::AddCharIn(char c) {
+    if (textIn.size() < Graphics::LineInLimit) {
         textIn.push_back(c);
     }
 }
 
-void Graphics::delCharIn() {
+void Graphics::DelCharIn() {
     if (textIn.size() > 0) {
         textIn.pop_back();
     }
 }
 
-void Graphics::changeTextSpeed(Graphics::TextSpeed newSpeed) {
+void Graphics::ChangeTextSpeed(Graphics::TextSpeed newSpeed) {
     textScrollSpeed = newSpeed;
 }
 
-void Graphics::changeCursorStyle(CursorStyle newStyle) {
+void Graphics::ChangeCursorStyle(CursorStyle newStyle) {
     cursorStyle = newStyle;
 }
 
-bool Graphics::queueEmpty() {
+bool Graphics::IsQueueEmpty() {
     for (auto& q : textOutScroll) {
         if (!q.empty()) {
             return false;
@@ -310,10 +310,10 @@ bool Graphics::queueEmpty() {
     return true;
 }
 
-void Graphics::dumpText() {
+void Graphics::DumpText() {
     purgeQueueNextFrame = true;
 }
 
-void Graphics::setImage(std::string newImageName) {
-    currImage = newImageName;
+void Graphics::SetBackgroundImage(std::string newImageName) {
+    currentImage = newImageName;
 }

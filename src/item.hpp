@@ -69,19 +69,19 @@ class Item {
     /* any special commands passed in, anything besides take and drop */
     std::vector<Command> specialCmds;
     /* the item attrs - see above */
-    Attrs itemAttrs;
+    Item::Attrs itemAttrs;
     /* the item flags - see above */
-    Flags itemFlags;
+    Item::Flags itemFlags;
 
     public:
 
-    /*
-        generates item flags, exists for constructor readability
-        TODO inline a bunch of shit here
-    */
-    static Flags flags(bool _canCarry);
-    /*  generates item attrs, exists for constructor readability  */
-    static Attrs attrs(bool isFound);
+    static inline constexpr Item::Attrs DefaultAttrs = Item::Attrs {
+        .isFound = false
+    };
+
+    static inline constexpr Item::Flags DefaultFlags = Item::Flags {
+        .canCarry = true
+    };
 
     /*
         Item constructor
@@ -97,27 +97,27 @@ class Item {
         std::string _repr,
         std::unordered_map<Message, std::string> _messages,
         std::vector<Command> _specialCmds = {},
-        Attrs _attrs = { false },
-        Flags _flags = { true }
+        Item::Attrs _attrs = Item::DefaultAttrs,
+        Item::Flags _flags = Item::DefaultFlags
     );
 
     /*  the internal name of the item  */
-    std::string getName();
+    std::string& GetName();
 
     /*  the in-game string representation of the item */ 
-    std::string getRepr();
+    std::string& GetRepr();
 
     /*  return a specific message  */
-    std::string getMessage(Message mtype);
+    std::string& GetMessage(Message mtype);
 
     /*  get list of all special commands  */
-    std::vector<Command> getSpecialCommands();
+    std::vector<Command>& GetSpecialCommands();
 
     /*  all item attributes (properties)  */
-    Attrs &getAttrs();
+    Item::Attrs& GetAttrs();
 
     /*  all item flags (mutable state)  */
-    Flags &getFlags();
+    Item::Flags& GetFlags();
 
 };
 

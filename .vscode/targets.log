@@ -8,17 +8,17 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Tue Jun 28 23:26:11 2022
+# Make data base, printed on Wed Jun 29 21:03:41 2022
 
 # Variables
 
+ 
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
 # environment
 OPAM_SWITCH_PREFIX = /Users/paul/.opam/default
- 
 # environment
 OCAML_TOPLEVEL_PATH = /Users/paul/.opam/default/lib/toplevel
 # makefile (from `Makefile', line 4)
@@ -52,7 +52,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-401d5d49-374e-4c5b-b34b-89e219bce4dd.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-b27be357-4e3e-4636-9052-0ec73fe0e7f8.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -182,10 +182,11 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 71087
+VSCODE_PID = 93002
 # environment
 NVM_RC_VERSION = 
 # variable set hash-table stats:
+ 
 # Load=86/1024=8%, Rehash=0, Collisions=1/113=1%
 
 # Pattern-specific Variable Values
@@ -241,14 +242,13 @@ src/graphics.cpp:
 # Not a target:
 .SUFFIXES:
 #  Implicit rule search has not been done.
- 
 #  Modification time never checked.
 #  File has not been updated.
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-28 23:24:33
+#  Last modified 2022-06-29 21:03:30
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -291,8 +291,8 @@ run: main
 #  Modification time never checked.
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 15):
-	mv build/main build/tbg
-	./build/tbg
+	mv build/main build/game
+	./build/game
 	
 
 clean:
@@ -321,7 +321,7 @@ clean:
 # Load=8/32=25%, Rehash=0, Collisions=1/10=10%
 #  commands to execute (from `Makefile', line 19):
 	clear
-	rm -rf build/tbg
+	rm -rf build/game
 	
 
 # Not a target:
@@ -357,6 +357,6 @@ main: src/assetmanager.cpp src/command.cpp src/globals.cpp src/graphics.cpp src/
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Tue Jun 28 23:26:11 2022
+# Finished Make data base on Wed Jun 29 21:03:41 2022
 
  

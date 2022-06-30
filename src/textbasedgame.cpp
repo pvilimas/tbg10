@@ -24,7 +24,7 @@ TextBasedGame::TextBasedGame() {
             { Room::Message::OnLook, "You are in the garden." }
         }),
     }) {
-        rooms.emplace(room.getName(), room);
+        rooms.emplace(room.GetName(), room);
     }
 
     /* ITEMS */
@@ -36,39 +36,39 @@ TextBasedGame::TextBasedGame() {
             { Item::Message::OnInspect, "This red door stands on the north side of the room, and it has a keyhole in the knob." }
         }, std::vector<Command>{
             Command("Red Door: Unlock", "unlock (red )?door", std::vector<std::string>{"unlock red door"}, [&]{
-                if (itemInInv("Red Key")) {
-                    player.removeItemFromInv("Red Key");
-                    linkRooms("Bedroom", Direction::North, "Garden");
-                    write(std::vector<std::string>{
+                if (IsItemInInv("Red Key")) {
+                    player.RemoveItemFromInv("Red Key");
+                    LinkRooms("Bedroom", Direction::North, "Garden");
+                    Write(std::vector<std::string>{
                         "You unlocked the red door.\n...",
                         "You can now go north.\n...",
                     });
                 } else {
-                    write("You don't have a key!");
+                    Write("You don't have a key!");
                 }
             })
         },
-        Item::attrs(false),
-        Item::flags(false)),
+        Item::Attrs { false } ,
+        Item::Flags { false } ),
     }) {
-        items.emplace(item.getName(), item);
+        items.emplace(item.GetName(), item);
     }
     
     /* setup */
 
-    linkRooms("Kitchen", Direction::North, "Bedroom"); // kitchen -> north -> bedroom
-    addItemToRoom("Red Key", "Kitchen");
-    addItemToRoom("Red Door", "Bedroom");
+    LinkRooms("Kitchen", Direction::North, "Bedroom"); // kitchen -> north -> bedroom
+    AddItemToRoom("Red Key", "Kitchen");
+    AddItemToRoom("Red Door", "Bedroom");
 
     currentRoom = "Kitchen";
-    write(fmt::format("You are in the {}.", rooms.at(currentRoom).getRepr()));
+    Write(fmt::format("You are in the {}.", rooms.at(currentRoom).GetRepr()));
 }
 
 TextBasedGame::~TextBasedGame() {
     delete graphics;
 }
 
-void TextBasedGame::run() {
+void TextBasedGame::Run() {
     static Timer backspaceTimer(0.1);
     while (!WindowShouldClose()) {
         /*  Get char pressed (unicode character) on the queue  */
@@ -78,40 +78,40 @@ void TextBasedGame::run() {
         while (key > 0) {
             /*  NOTE: Only allow keys in range [32..125]  */
             if ((key >= 32) && (key <= 125)) {
-                graphics->addCharIn((char) key);
+                graphics->AddCharIn((char) key);
             }
             /*  Check next character in the queue  */
             key = GetCharPressed();
         }
 
         if (IsKeyDown(KEY_BACKSPACE) && backspaceTimer.IntervalPassed()) {
-            graphics->delCharIn();
+            graphics->DelCharIn();
         } else if (IsKeyPressed(KEY_BACKSPACE)) {
-            graphics->delCharIn();
+            graphics->DelCharIn();
         } else if (IsKeyPressed(KEY_ENTER)) {
-            if (!graphics->queueEmpty()) {
-                graphics->dumpText();
+            if (!graphics->IsQueueEmpty()) {
+                graphics->DumpText();
             } else {
-                eval(read());
+                Eval(Read());
             }
         } else if (IsKeyPressed(KEY_TAB)) {
             /*  also clears hint  */
-            graphics->addHintToInput();
+            graphics->AddHintToInput();
         }
 
-        updateHint();
-        graphics->draw();
+        UpdateHint();
+        graphics->Draw();
     }
 }
 
-void TextBasedGame::changeState(TextBasedGame::GameState newState) {
+void TextBasedGame::ChangeState(TextBasedGame::GameState newState) {
     /* if user typed "exit" */
     if (state == GameState::Playing && newState == GameState::ExitMenu) {
-        write(Messages::ExitConfirmation);
+        Write(Messages::ExitConfirmation);
     }
     /* if user typed "exit" then "no" */
     else if (state == GameState::ExitMenu && newState == GameState::Playing) {
-        write(fmt::format("You are in the {}.", currentRoom));
+        Write(fmt::format("You are in the {}.", currentRoom));
     }
     
     state = newState;
@@ -119,51 +119,51 @@ void TextBasedGame::changeState(TextBasedGame::GameState newState) {
 
 /* setup */
 
-void TextBasedGame::linkRooms(std::string a, Direction d, std::string b, bool bothWays) {
-    rooms.at(a).setPath(d, b);
+void TextBasedGame::LinkRooms(std::string a, Direction d, std::string b, bool bothWays) {
+    rooms.at(a).SetPath(d, b);
     if (bothWays) {
-        rooms.at(b).setPath(reverse(d), a);
+        rooms.at(b).SetPath(ReverseDirection(d), a);
     }
 }
 
-void TextBasedGame::addItemToRoom(std::string itemName, std::string roomName) {
-    rooms.at(roomName).addItem(itemName);
+void TextBasedGame::AddItemToRoom(std::string itemName, std::string roomName) {
+    rooms.at(roomName).AddItem(itemName);
 }
 
-void TextBasedGame::addItemToInventory(std::string itemName) {
-    player.addItemToInv(itemName);
+void TextBasedGame::AddItemToInventory(std::string itemName) {
+    player.AddItemToInv(itemName);
 }
 
 /* IO */
 
-std::string TextBasedGame::read() {
-    return graphics->getTextIn();
+std::string TextBasedGame::Read() {
+    return graphics->GetTextIn();
 }
 
-/* eval(read()) gets called when user hits enter */
-void TextBasedGame::eval(std::string input) {
-    clear();
-    for (auto &cmd : getCommands()) {
-        if (cmd.tryEval(input)) {
+/* Eval(Read()) gets called when user hits enter */
+void TextBasedGame::Eval(std::string input) {
+    Clear();
+    for (auto &cmd : GetCommands()) {
+        if (cmd.TryEval(input)) {
             break;
         }
     }
 
-    graphics->setTextIn("");
+    graphics->SetTextIn("");
 }
 
-void TextBasedGame::clear() {
-    write("");
+void TextBasedGame::Clear() {
+    Write("");
 }
 
-void TextBasedGame::write(std::string s) {
+void TextBasedGame::Write(std::string str) {
     /* split text into lines */
     static auto lineRegex = std::regex("(.{1,65})(?:(\\s)+|$|\n)");
     std::vector<std::string> res;
 
     int lc = 0;
-    for (auto i = std::sregex_iterator(s.begin(), s.end(), lineRegex); i != std::sregex_iterator(); i++) {
-        if (lc == Graphics::lineOutCount) {
+    for (auto i = std::sregex_iterator(str.begin(), str.end(), lineRegex); i != std::sregex_iterator(); i++) {
+        if (lc == Graphics::LineOutCount) {
             break;
         }
         res.push_back((*i).str());
@@ -171,26 +171,26 @@ void TextBasedGame::write(std::string s) {
     }
 
     /* pad it with empty lines */
-    while (res.size() < Graphics::lineOutCount) {
+    while (res.size() < Graphics::LineOutCount) {
         res.push_back("");
     }
 
     /* write all the lines */
-    for (int i = 0; i < Graphics::lineOutCount; i++) {
-        graphics->setTextOut(res.at(i), i);
+    for (int i = 0; i < Graphics::LineOutCount; i++) {
+        graphics->SetTextOut(res.at(i), i);
     }
 }
 
-void TextBasedGame::write(std::vector<std::string> v) {
+void TextBasedGame::Write(std::vector<std::string> strs) {
     std::queue<std::string> q;
-    for (auto &str : v) {
+    for (auto &str : strs) {
         q.push(str);
     }
-    graphics->setTextIn("");
+    graphics->SetTextIn("");
     while (!WindowShouldClose()) {
         if (GetKeyPressed() != KEY_NULL) {
-            if (!graphics->queueEmpty()) {
-                graphics->dumpText();
+            if (!graphics->IsQueueEmpty()) {
+                graphics->DumpText();
             } else {
                 if (q.empty()) {
                     return;
@@ -198,41 +198,41 @@ void TextBasedGame::write(std::vector<std::string> v) {
                 /* advance */
                 std::string s = q.front();
                 q.pop();
-                write(s);
+                Write(s);
             }
         }
-        graphics->draw();
+        graphics->Draw();
     }
 }
 
-void TextBasedGame::updateHint() {
-    auto input = read();
+void TextBasedGame::UpdateHint() {
+    std::string input = Read();
     auto len = input.length();
     if (len == 0) {
-        graphics->setHint("");
+        graphics->SetHint("");
         return;
     }
 
-    for (auto &cmd : getCommands()) {
-        if (cmd.getHints().size() == 0) {
+    for (auto &cmd : GetCommands()) {
+        if (cmd.GetHints().size() == 0) {
             continue;
         }
 
-        for (auto &hint : cmd.getHints()) {
+        for (auto &hint : cmd.GetHints()) {
             // return the first match found
             if (hint.substr(0, len) == input) {
                 // npos = "go to the end of the string"
-                graphics->setHint(hint.substr(len, std::string::npos));
+                graphics->SetHint(hint.substr(len, std::string::npos));
                 return;
             }
         }
     }
-    graphics->setHint("");
+    graphics->SetHint("");
 }
 
 /* commands */
 
-std::vector<Command> TextBasedGame::getCommands() {
+std::vector<Command> TextBasedGame::GetCommands() {
     std::vector<Command> cmds;
     
     if (state == GameState::Playing) {
@@ -241,50 +241,50 @@ std::vector<Command> TextBasedGame::getCommands() {
             "go north",
             "move north",
             "north"
-        }, [&]{ tryMove(Direction::North); }));
+        }, [&]{ TryMove(Direction::North); }));
         cmds.push_back(Command("Move South", "(go|move )?s(outh)?", std::vector<std::string>{
             "go south",
             "move south",
             "south"
-        }, [&]{ tryMove(Direction::South); }));
+        }, [&]{ TryMove(Direction::South); }));
         cmds.push_back(Command("Move East", "(go|move )?e(ast)?", std::vector<std::string>{
             "go east",
             "move east",
             "east"
-        }, [&]{ tryMove(Direction::East); }));
+        }, [&]{ TryMove(Direction::East); }));
         cmds.push_back(Command("Move West", "(go|move )?w(est)?", std::vector<std::string>{
             "go west",
             "move west",
             "west"
-        }, [&]{ tryMove(Direction::West); }));
-        cmds.push_back(Command("Move Unknown Direction", "(go|move ).*", std::vector<std::string>(), [&]{ write(Messages::InvalidDir); }));
+        }, [&]{ TryMove(Direction::West); }));
+        cmds.push_back(Command("Move Unknown Direction", "(go|move ).*", std::vector<std::string>(), [&]{ Write(Messages::InvalidDir); }));
 
         /* inspection/visual */
         cmds.push_back(Command("Get Current Room", "(where am i)|((current )?room)", std::vector<std::string>{
             "current room",
             "room",
             "where am i"
-        }, [&]{ write(fmt::format("You are in the {}.", rooms.at(currentRoom).getRepr())); }));
+        }, [&]{ Write(fmt::format("You are in the {}.", rooms.at(currentRoom).GetRepr())); }));
         cmds.push_back(Command("Look Around", "look( around)?", std::vector<std::string>{"look around"}, [&]{
-            for (auto &item : rooms.at(currentRoom).getItems()) {
-                items.at(item).getAttrs().isFound = true;
+            for (auto &item : rooms.at(currentRoom).GetItems()) {
+                items.at(item).GetAttrs().isFound = true;
             }
-            write(rooms.at(currentRoom).getMessage(Room::Message::OnLook) + " " + reprCurrentRoom());
+            Write(rooms.at(currentRoom).GetMessage(Room::Message::OnLook) + " " + CurrentRoomRepr());
         }));
         cmds.push_back(Command("Check Inventory", "(check )?inv(entory)?", std::vector<std::string>{
             "check inventory",
             "inventory"
-        }, [&]{ write(reprInv()); }));
+        }, [&]{ Write(InventoryRepr()); }));
 
         /* take/drop items, special commands */
 
         for (auto& [name, item] : items) {
-            auto repr = item.getRepr();
+            auto repr = item.GetRepr();
 
             std::vector<std::string> takeHints;
             std::vector<std::string> dropHints;
             std::vector<std::string> lookHints;
-            if (item.getAttrs().isFound) {
+            if (item.GetAttrs().isFound) {
                 takeHints = std::vector<std::string>{
                     fmt::format("take {}", repr),
                     fmt::format("pick up {}", repr),
@@ -303,32 +303,32 @@ std::vector<Command> TextBasedGame::getCommands() {
                 lookHints = {};
             }
 
-            if (itemInRoom(name, currentRoom) && item.getFlags().canCarry) {
+            if (IsItemInRoom(name, currentRoom) && item.GetFlags().canCarry) {
                 cmds.push_back(Command(
                     fmt::format("Take Item: {}", name),
                     fmt::format("(take|pick up) {}", name),
                     takeHints,
-                    [&]{ tryTakeItem(name); }
+                    [&]{ TryTakeItem(name); }
                 ));
             }
-            if (itemInInv(name)) {
+            if (IsItemInInv(name)) {
                 cmds.push_back(Command(
                     fmt::format("Drop Item: {}", name),
                     fmt::format("(drop|put down) {}", name),
                     dropHints,
-                    [&]{ tryDropItem(name); }
+                    [&]{ TryDropItem(name); }
                 ));
             }
-            if (itemInRoom(name, currentRoom)) {
+            if (IsItemInRoom(name, currentRoom)) {
                 cmds.push_back(Command(
                     fmt::format("Inspect Item: {}", name),
                     fmt::format("(look at|inspect) {}", name),
                     lookHints,
-                    [&]{ tryInspectItem(name); }
+                    [&]{ TryInspectItem(name); }
                 ));
             }
-            if (itemInInv(name) || itemInRoom(name, currentRoom)) {
-                for (const auto &cmd : item.getSpecialCommands()) {
+            if (IsItemInInv(name) || IsItemInRoom(name, currentRoom)) {
+                for (const auto &cmd : item.GetSpecialCommands()) {
                     cmds.push_back(cmd);
                 }
             }
@@ -336,10 +336,10 @@ std::vector<Command> TextBasedGame::getCommands() {
 
         /* take/drop failsafes */
         /* if hint is "" ignore */
-        cmds.push_back(Command("Take Item: Invalid", "take .*", std::vector<std::string>(), [&]{ write(Messages::InvalidTake); }));
-        cmds.push_back(Command("Take Item: Unknown", "take.*", std::vector<std::string>(), [&]{ write(Messages::UnknownTake); }));
-        cmds.push_back(Command("Drop Item: Invalid", "drop .*", std::vector<std::string>(), [&]{ write(Messages::InvalidDrop); }));
-        cmds.push_back(Command("Drop Item: Unknown", "drop.*", std::vector<std::string>(), [&]{ write(Messages::UnknownDrop); }));
+        cmds.push_back(Command("Take Item: Invalid", "take .*", std::vector<std::string>(), [&]{ Write(Messages::InvalidTake); }));
+        cmds.push_back(Command("Take Item: Unknown", "take.*", std::vector<std::string>(), [&]{ Write(Messages::UnknownTake); }));
+        cmds.push_back(Command("Drop Item: Invalid", "drop .*", std::vector<std::string>(), [&]{ Write(Messages::InvalidDrop); }));
+        cmds.push_back(Command("Drop Item: Unknown", "drop.*", std::vector<std::string>(), [&]{ Write(Messages::UnknownDrop); }));
 
         /* settings */
 
@@ -348,25 +348,25 @@ std::vector<Command> TextBasedGame::getCommands() {
             "set textspeed slow",
             "set ts slow"
         }, [&]{
-            graphics->changeTextSpeed(Graphics::TextSpeed::Slow);
-            write(Messages::TextSpeedSet);
+            graphics->ChangeTextSpeed(Graphics::TextSpeed::Slow);
+            Write(Messages::TextSpeedSet);
         }));
         cmds.push_back(Command("Set Text Scroll Speed: Medium", "set (textspeed|ts) (m(ed(ium)?)?)|(2)", std::vector<std::string>{
             "set textspeed med",
             "set ts med"
         }, [&]{
-            graphics->changeTextSpeed(Graphics::TextSpeed::Medium);
-            write(Messages::TextSpeedSet);
+            graphics->ChangeTextSpeed(Graphics::TextSpeed::Medium);
+            Write(Messages::TextSpeedSet);
         }));
         cmds.push_back(Command("Set Text Scroll Speed: Fast", "set (textspeed|ts) (f(ast)?)|(3)", std::vector<std::string>{
             "set textspeed fast",
             "set ts fast"
         }, [&]{
-            graphics->changeTextSpeed(Graphics::TextSpeed::Fast);
-            write(Messages::TextSpeedSet);
+            graphics->ChangeTextSpeed(Graphics::TextSpeed::Fast);
+            Write(Messages::TextSpeedSet);
         }));
         cmds.push_back(Command("Set Text Scroll Speed: Invalid", "set (textspeed|ts).*", std::vector<std::string>(), [&]{
-            write(Messages::InvalidTextSpeed);
+            Write(Messages::InvalidTextSpeed);
         }));
 
         /* cursor style */
@@ -375,35 +375,35 @@ std::vector<Command> TextBasedGame::getCommands() {
             "set cursor 1",
             "set cs 1"
         }, [&]{
-            graphics->changeCursorStyle(Graphics::CursorStyle::VerticalBar);
-            write(Messages::CursorStyleSet);
+            graphics->ChangeCursorStyle(Graphics::CursorStyle::VerticalBar);
+            Write(Messages::CursorStyleSet);
         }));
         cmds.push_back(Command("Set Cursor Style: Underline", "set (cursor( style)?|cs|c) 2", std::vector<std::string>{
             "set cursor style 2",
             "set cursor 2",
             "set cs 2"
         }, [&]{
-            graphics->changeCursorStyle(Graphics::CursorStyle::Underline);
-            write(Messages::CursorStyleSet);
+            graphics->ChangeCursorStyle(Graphics::CursorStyle::Underline);
+            Write(Messages::CursorStyleSet);
         }));
         cmds.push_back(Command("Set Cursor Style: OutlineBox", "set (cursor( style)?|cs|c) 3", std::vector<std::string>{
             "set cursor style 3",
             "set cursor 3",
             "set cs 3"
         }, [&]{
-            graphics->changeCursorStyle(Graphics::CursorStyle::OutlineBox);
-            write(Messages::CursorStyleSet);
+            graphics->ChangeCursorStyle(Graphics::CursorStyle::OutlineBox);
+            Write(Messages::CursorStyleSet);
         }));
         cmds.push_back(Command("Set Cursor Style: TransparentBox", "set (cursor( style)?|cs|c) 4", std::vector<std::string>{
             "set cursor style 4",
             "set cursor 4",
             "set cs 4"
         }, [&]{
-            graphics->changeCursorStyle(Graphics::CursorStyle::TransparentBox);
-            write(Messages::CursorStyleSet);
+            graphics->ChangeCursorStyle(Graphics::CursorStyle::TransparentBox);
+            Write(Messages::CursorStyleSet);
         }));
         cmds.push_back(Command("Set Cursor Style: Invalid", "set (cursor( style)?|cs|c).*", std::vector<std::string>(), [&]{
-            write(Messages::InvalidCursorStyle);
+            Write(Messages::InvalidCursorStyle);
         }));
         
         /* misc. system */
@@ -412,7 +412,7 @@ std::vector<Command> TextBasedGame::getCommands() {
             "help me",
             "game help"
         }, [&]{
-            write(std::vector<std::string>{
+            Write(std::vector<std::string>{
                 "look around\n"
                 "go <north/south/east/west>\n"
                 "take/drop <item>\n"
@@ -428,7 +428,7 @@ std::vector<Command> TextBasedGame::getCommands() {
             "settings",
             "game settings"
         }, [&]{
-            write(
+            Write(
                 "set textspeed <slow/med/fast>\n"
                 "set cursor <1/2/3/4>"
             );
@@ -436,11 +436,11 @@ std::vector<Command> TextBasedGame::getCommands() {
         cmds.push_back(Command("Exit Game", "(q(uit)?|exit)( game)?", std::vector<std::string>{
             "exit game",
             "quit game"
-        }, [&]{ changeState(GameState::ExitMenu); }));
+        }, [&]{ ChangeState(GameState::ExitMenu); }));
 
         /* failsafes */
-        cmds.push_back(Command("Unknown Setting", "set.*", std::vector<std::string>(), [&]{ write("What do you want to set?\nUsage: set <setting> <arg>"); }));
-        cmds.push_back(Command("Invalid Command", ".*", std::vector<std::string>(), [&]{ write(Messages::InvalidCommand); }));
+        cmds.push_back(Command("Unknown Setting", "set.*", std::vector<std::string>(), [&]{ Write("What do you want to set?\nUsage: set <setting> <arg>"); }));
+        cmds.push_back(Command("Invalid Command", ".*", std::vector<std::string>(), [&]{ Write(Messages::InvalidCommand); }));
 
     } else if (state == GameState::ExitMenu) {
         cmds.push_back(Command("Exit: Yes", "(y(es)?)|(exit)|(quit)", std::vector<std::string>{
@@ -450,10 +450,10 @@ std::vector<Command> TextBasedGame::getCommands() {
         }, []{ throw ExitGameException(); }));
         cmds.push_back(Command("Exit: No", "n(o)?", std::vector<std::string>{
             "no"
-        }, [&]{ changeState(GameState::Playing); }));
+        }, [&]{ ChangeState(GameState::Playing); }));
         
         /* failsafe */
-        cmds.push_back(Command("Exit: Unknown", ".*", std::vector<std::string>(), [&]{ write(Messages::InvalidExitCommand); }));
+        cmds.push_back(Command("Exit: Unknown", ".*", std::vector<std::string>(), [&]{ Write(Messages::InvalidExitCommand); }));
     }
 
     return cmds;
@@ -461,123 +461,123 @@ std::vector<Command> TextBasedGame::getCommands() {
 
 /* player interaction */
 
-void TextBasedGame::tryMove(Direction d) {
-    std::string targetRoomName = rooms.at(currentRoom).getPath(d);
+void TextBasedGame::TryMove(Direction d) {
+    std::string targetRoomName = rooms.at(currentRoom).GetPath(d);
     
     /* if player cannot go that way */
     if (targetRoomName == "") {
-        write(Messages::BlockedDir);
+        Write(Messages::BlockedDir);
     }
     /* if they can */
     else {
-        currentRoom = rooms.at(currentRoom).getPath(d);
-        graphics->setImage(currentRoom);
-        write(fmt::format("You went {}.\n{}", repr(d), rooms.at(currentRoom).getMessage(Room::Message::OnEnter)));
+        currentRoom = rooms.at(currentRoom).GetPath(d);
+        graphics->SetBackgroundImage(currentRoom);
+        Write(fmt::format("You went {}.\n{}", ReprDirection(d), rooms.at(currentRoom).GetMessage(Room::Message::OnEnter)));
     }
 }
 
-void TextBasedGame::tryTakeItem(std::string itemName) {
-    bool inInv = itemInInv(itemName);
-    bool inRoom = itemInRoom(itemName, currentRoom);
-    Item::Flags flags = items.at(itemName).getFlags();
+void TextBasedGame::TryTakeItem(std::string itemName) {
+    bool inInv = IsItemInInv(itemName);
+    bool inRoom = IsItemInRoom(itemName, currentRoom);
+    Item::Flags flags = items.at(itemName).GetFlags();
     if (!inInv && inRoom && flags.canCarry) {
-        player.addItemToInv(itemName);
-        rooms.at(currentRoom).removeItem(itemName);
-        items.at(itemName).getAttrs().isFound = true;
-        write(fmt::format("You took the {}.", items.at(itemName).getRepr()));
+        player.AddItemToInv(itemName);
+        rooms.at(currentRoom).RemoveItem(itemName);
+        items.at(itemName).GetAttrs().isFound = true;
+        Write(fmt::format("You took the {}.", items.at(itemName).GetRepr()));
     } else if (inInv) {
-        write(Messages::InvalidTakeHolding);
+        Write(Messages::InvalidTakeHolding);
     } else if (!inRoom) {
-        write(Messages::InvalidTake);
+        Write(Messages::InvalidTake);
     } else if (!flags.canCarry) {
-        write(Messages::CannotCarry);
+        Write(Messages::CannotCarry);
     } else {
-        write(Messages::UnknownError); // forgot edge case maybe 
+        Write(Messages::UnknownError); // forgot edge case maybe 
     }
 }
 
-void TextBasedGame::tryDropItem(std::string itemName) {
-    bool inInv = itemInInv(itemName);
-    bool inRoom = itemInRoom(itemName, currentRoom);
+void TextBasedGame::TryDropItem(std::string itemName) {
+    bool inInv = IsItemInInv(itemName);
+    bool inRoom = IsItemInRoom(itemName, currentRoom);
     if (inInv && !inRoom) {
-        player.removeItemFromInv(itemName);
-        rooms.at(currentRoom).addItem(itemName);
-        write(fmt::format("You dropped the {}.", items.at(itemName).getRepr()));
+        player.RemoveItemFromInv(itemName);
+        rooms.at(currentRoom).AddItem(itemName);
+        Write(fmt::format("You dropped the {}.", items.at(itemName).GetRepr()));
     } else if (!inInv) {
-        write(Messages::InvalidDrop);
+        Write(Messages::InvalidDrop);
     } else if (inRoom) {
-        write(Messages::InvalidDrop);
+        Write(Messages::InvalidDrop);
     } else {
-        write(Messages::UnknownError); // forgot edge case maybe
+        Write(Messages::UnknownError); // forgot edge case maybe
     }
 }
 
 
-void TextBasedGame::tryInspectItem(std::string itemName) {
-    bool inInv = itemInInv(itemName);
-    bool inRoom = itemInRoom(itemName, currentRoom);
+void TextBasedGame::TryInspectItem(std::string itemName) {
+    bool inInv = IsItemInInv(itemName);
+    bool inRoom = IsItemInRoom(itemName, currentRoom);
 
     if (inInv || inRoom) {
-        write(items.at(itemName).getMessage(Item::Message::OnInspect));
+        Write(items.at(itemName).GetMessage(Item::Message::OnInspect));
     } else {
-        write(Messages::InvalidInspect);
+        Write(Messages::InvalidInspect);
     }
 }
 
 
-bool TextBasedGame::itemInRoom(std::string itemName, std::string roomName) {
-    auto items = rooms.at(roomName).getItems();
+bool TextBasedGame::IsItemInRoom(std::string itemName, std::string roomName) {
+    auto items = rooms.at(roomName).GetItems();
     return std::find(items.begin(), items.end(), itemName) != items.end();
 }
 
-bool TextBasedGame::itemInInv(std::string itemName) {
-    auto inv = player.getInventory();
+bool TextBasedGame::IsItemInInv(std::string itemName) {
+    auto inv = player.GetInventory();
     return std::find(inv.begin(), inv.end(), itemName) != inv.end();
 }
 
-std::string TextBasedGame::reprItem(std::string itemName) {
-    std::string repr = items.at(itemName).getRepr();
-    for (char c : "aeiouAEIOU") {
-        if (repr[0] == c) {
+std::string TextBasedGame::FullItemRepr(std::string itemName) {
+    std::string repr = items.at(itemName).GetRepr();
+    for (char c : "aeiou") {
+        if (repr[0] == c || repr[0] == c - 32) {
             return fmt::format("an {}", repr);
         }
     }
     return fmt::format("a {}", repr);
 }
 
-std::string TextBasedGame::reprInv() {
-    auto inv = player.getInventory();
+std::string TextBasedGame::InventoryRepr() {
+    auto inv = player.GetInventory();
     switch(inv.size()) {
         case 0: return "Your inventory is empty.";
-        case 1: return fmt::format("Your inventory contains {}.", reprItem(inv[0]));
-        case 2: return fmt::format("Your inventory contains {} and {}.", reprItem(inv[0]), reprItem(inv[1]));
-        case 3: return fmt::format("Your inventory contains {}, {} and {}.", reprItem(inv[0]), reprItem(inv[1]), reprItem(inv[2]));
+        case 1: return fmt::format("Your inventory contains {}.", FullItemRepr(inv[0]));
+        case 2: return fmt::format("Your inventory contains {} and {}.", FullItemRepr(inv[0]), FullItemRepr(inv[1]));
+        case 3: return fmt::format("Your inventory contains {}, {} and {}.", FullItemRepr(inv[0]), FullItemRepr(inv[1]), FullItemRepr(inv[2]));
         default: {
             std::string s = "Your inventory contains ";
             for (uint8_t i = 0; i < inv.size() - 2; i++) {
-                s += (reprItem(inv[i]) + ", ");
+                s += (FullItemRepr(inv[i]) + ", ");
             }
-            s += reprItem(inv[inv.size() - 2]);
-            s += fmt::format(" and {}.", reprItem(inv[inv.size() - 1]));
+            s += FullItemRepr(inv[inv.size() - 2]);
+            s += fmt::format(" and {}.", FullItemRepr(inv[inv.size() - 1]));
             return s;
         }
     }
 }
 
-std::string TextBasedGame::reprCurrentRoom() {
-    auto roomItems = rooms.at(currentRoom).getItems();
+std::string TextBasedGame::CurrentRoomRepr() {
+    auto roomItems = rooms.at(currentRoom).GetItems();
     switch(roomItems.size()) {
         case 0: return "There's nothing useful in here.";
-        case 1: return fmt::format("You see {}.", reprItem(roomItems[0]));
-        case 2: return fmt::format("You see {} and {}.", reprItem(roomItems[0]), reprItem(roomItems[1]));
-        case 3: return fmt::format("You see {}, {} and {}.", reprItem(roomItems[0]), reprItem(roomItems[1]), reprItem(roomItems[2]));
+        case 1: return fmt::format("You see {}.", FullItemRepr(roomItems[0]));
+        case 2: return fmt::format("You see {} and {}.", FullItemRepr(roomItems[0]), FullItemRepr(roomItems[1]));
+        case 3: return fmt::format("You see {}, {} and {}.", FullItemRepr(roomItems[0]), FullItemRepr(roomItems[1]), FullItemRepr(roomItems[2]));
         default: {
             std::string s = "You see ";
             for (uint8_t i = 0; i < roomItems.size() - 2; i++) {
-                s += (reprItem(roomItems[i]) + ", ");
+                s += (FullItemRepr(roomItems[i]) + ", ");
             }
-            s += reprItem(roomItems[roomItems.size() - 2]);
-            s += fmt::format(" and {}.", reprItem(roomItems[roomItems.size() - 1]));
+            s += FullItemRepr(roomItems[roomItems.size() - 2]);
+            s += fmt::format(" and {}.", FullItemRepr(roomItems[roomItems.size() - 1]));
             return s;
         }
     }
@@ -590,14 +590,14 @@ TextBasedGame::Player::Player() {
     inventory = std::vector<std::string>();
 }
 
-std::vector<std::string> TextBasedGame::Player::getInventory() {
-    return std::vector<std::string>(inventory);
+std::vector<std::string>& TextBasedGame::Player::GetInventory() {
+    return inventory;
 }
 
-void TextBasedGame::Player::addItemToInv(std::string itemName) {
+void TextBasedGame::Player::AddItemToInv(std::string itemName) {
     inventory.push_back(itemName);
 }
 
-void TextBasedGame::Player::removeItemFromInv(std::string itemName) {
+void TextBasedGame::Player::RemoveItemFromInv(std::string itemName) {
     inventory.erase(std::find(inventory.begin(), inventory.end(), itemName));
 }

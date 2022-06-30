@@ -1,21 +1,21 @@
 #include "globals.hpp"
 
-std::string repr(Direction d) {
+std::string ReprDirection(Direction& d) {
     switch(d) {
-        case North: return "north";
-        case South: return "south";
-        case East: return "east";
-        case West: return "west";
+        case Direction::North: return "north";
+        case Direction::South: return "south";
+        case Direction::East: return "east";
+        case Direction::West: return "west";
         default: return "invalid_dir";
     }
 }
 
-Direction reverse(Direction d) {
+Direction ReverseDirection(Direction& d) {
     switch(d) {
-        case North: return South;
-        case South: return North;
-        case East: return West;
-        case West: return East;
-        default: return Invalid;
+        case Direction::North: return Direction::South;
+        case Direction::South: return Direction::North;
+        case Direction::East: return Direction::West;
+        case Direction::West: return Direction::East;
+        default: return Direction::Invalid;
     }
 }

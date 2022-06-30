@@ -6,7 +6,7 @@
 #include "raylib/raylib.h"
 
 /*
-    small utility class that returns true every x seconds (ignoring any granularity with how often it's called)
+    utility class that returns true every x seconds (ignoring any granularity with how often it's called)
     has an optional callback that can run after the interval passed
 */
 class Timer {
@@ -18,14 +18,15 @@ class Timer {
 
     public:
 
-    static const std::function<void()> defaultCallback;
+    /* does nothing */
+    static inline const std::function<void()> DefaultCallback = []{};
 
     /*
         Timer constructor
         _interval - the interval
         _callback - the optional callback
     */
-    Timer(double _interval, std::function<void()> _callback = defaultCallback);
+    Timer(double _interval, std::function<void()> _callback = DefaultCallback);
     
     /*  returns true if an interval has passed, then resets the interval  */
     bool IntervalPassed();

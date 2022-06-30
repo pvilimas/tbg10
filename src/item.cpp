@@ -1,20 +1,12 @@
 #include "item.hpp"
 
-Item::Flags Item::flags(bool _canCarry) {
-    return Flags { _canCarry };
-}
-
-Item::Attrs Item::attrs(bool isFound) {
-    return Attrs { isFound };
-}
-
 Item::Item(
     std::string _name,
     std::string _repr,
     std::unordered_map<Message, std::string> _messages,
     std::vector<Command> _specialCmds,
-    Attrs _attrs,
-    Flags _flags
+    Item::Attrs _attrs,
+    Item::Flags _flags
 ) {
     name = _name;
     repr = _repr;
@@ -24,26 +16,26 @@ Item::Item(
     itemFlags = _flags;
 }
 
-std::string Item::getName() {
+std::string& Item::GetName() {
     return name;
 }
 
-std::string Item::getRepr() {
+std::string& Item::GetRepr() {
     return repr;
 }
 
-std::string Item::getMessage(Item::Message mtype) {
+std::string& Item::GetMessage(Item::Message mtype) {
     return messages.at(mtype);
 }
 
-std::vector<Command> Item::getSpecialCommands() {
-    return std::vector<Command>(specialCmds);
+std::vector<Command>& Item::GetSpecialCommands() {
+    return specialCmds;
 }
 
-Item::Attrs &Item::getAttrs() {
+Item::Attrs& Item::GetAttrs() {
     return itemAttrs;
 }
 
-Item::Flags &Item::getFlags() {
+Item::Flags& Item::GetFlags() {
     return itemFlags;
 }

@@ -13,9 +13,9 @@ class Command {
 
     private:
 
-    /*   internal name of the command   */
+    /*  internal name of the command  */
     std::string repr;
-    /*   regex pattern object to match against   */
+    /*  regex pattern object to match against  */
     std::regex pattern;
     /*
         a list of hints that can be autofilled from what the player has
@@ -34,36 +34,35 @@ class Command {
     /*
         Command constructor
         _repr - internal name of the command
-        _pattern - regex string to match against - gets compiled into std::regex here with
+        _pattern_str - regex string to match against - gets compiled into std::regex here with
             IGNORECASE flag and ^...$ for better matching
         _hints - a list of hints to show the player, potentially using these for autofill
         _callback - the callback function, must be void -> void
     */
     Command(
         std::string _repr,
-        std::string _pattern,
+        std::string _pattern_str,
         std::vector<std::string> _hints,
         std::function<void()> _callback = []{}
     );
-    /*   Command destructor, empty method   */
+    /*  Command destructor, empty method  */
     ~Command();
 
+    /*  get internal name of the command  */
+    std::string& GetRepr();
     
-    /*   get internal name of the command   */
-    std::string getRepr();
-    
-    /*   get a list of in-game hints   */
-    std::vector<std::string> getHints();
+    /*  get a list of in-game hints  */
+    std::vector<std::string>& GetHints();
 
-    /*   does the command match this string?   */
-    bool isMatch(std::string);
+    /*  does the command match this string?  */
+    bool IsMatch(std::string& s);
 
     /*
         try to match the string against this command
         if it matches call the callback and return true
         else return false
     */
-    bool tryEval(std::string);
+    bool TryEval(std::string& s);
 
 };
 

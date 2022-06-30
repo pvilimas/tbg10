@@ -14,34 +14,34 @@ Room::Room(
 
 Room::~Room() {}
 
-std::string Room::getName() {
-    return std::string(name);
+std::string& Room::GetName() {
+    return name;
 }
 
-std::string Room::getRepr() {
-    return std::string(repr);
+std::string& Room::GetRepr() {
+    return repr;
 }
 
-std::string Room::getMessage(Room::Message mtype) {
+std::string& Room::GetMessage(Room::Message mtype) {
     return messages.at(mtype);
 }
 
-std::string Room::getPath(Direction d) {
-    return std::string(paths.at(d));
+std::string& Room::GetPath(Direction d) {
+    return paths.at(d);
 }
 
-void Room::setPath(Direction d, std::string other) {
+void Room::SetPath(Direction d, std::string other) {
     paths.at(d) = other;
 }
 
-std::vector<std::string> Room::getItems() {
-    return std::vector<std::string>(items);
+std::vector<std::string>& Room::GetItems() {
+    return items;
 }
 
-void Room::addItem(std::string itemName) {
+void Room::AddItem(std::string itemName) {
     items.push_back(itemName);
 }
 
-void Room::removeItem(std::string itemName) {
+void Room::RemoveItem(std::string itemName) {
     items.erase(std::find(items.begin(), items.end(), itemName));
 }
