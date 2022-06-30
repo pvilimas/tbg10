@@ -4,28 +4,7 @@
 /*
     TODO:
 
-    - clean up code
-        - standardize anything that needs it
-            - var naming: styleguide
-            - make sure static stuff is accessed statically (qualnames)
-            - use references where needed (esp params)
-                - not std::string params tho, not if you want to pass them as const char*
-            - .at() instead of [] where necessary
-            - organize imports (alphabetically):
-                <std1>
-                <std2>
-                <std3>
-
-                "raylib"
-                #define FMT_SHIT
-                "fmt"
-
-                "./local1"
-                "./local2"
-                "./local3"
-
-            - make multiple passes through for each of these
-    - removed unused stuff
+    - remove unused stuff
     - deal with any other TODOs
     
     - make branches for
