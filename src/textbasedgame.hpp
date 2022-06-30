@@ -26,8 +26,8 @@
     - initializing everything
         - TODO find a file format or something to load from lol (much later)
     - reading user input and evaluating to commands
-        - TODO have a thing that maps from currentGameState to a function, to automate
-            repeated prompts: write(fmt::format("You are in the {}.", currentRoom));
+        - TODO have a thing that maps from currentGameState to a function, to automate repeated
+        prompts: write(fmt::format("You are in the {}.", currentRoom));
     - manipulating inventory, room.items, rooms, [npc dialog options]
     - sending messages and prompts to the player
     - all moving around rooms, taking or dropping items, [talking to npcs]
