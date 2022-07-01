@@ -47,7 +47,6 @@ void TextBasedGame::InitRooms() {
     /* linking */
 
     LinkRooms("Kitchen", Direction::North, "Bedroom"); // kitchen -> north -> bedroom
-    std::cout<<fmt::format("'{}'\n", rooms.Get("Kitchen").GetPath(Direction::North));
 }
 
 void TextBasedGame::InitItems() {
