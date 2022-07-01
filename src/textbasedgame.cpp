@@ -384,83 +384,93 @@ void TextBasedGame::UpdateHint() {
 /* commands */
 
 std::vector<Command> TextBasedGame::GetCommands() {
-    std::vector<Command> cmds;
-    
-    if (state == GameState::Playing) {
-        
-        /* movement */
-        
-        cmds.push_back(commands.Get("Move: North"));
-        cmds.push_back(commands.Get("Move: South"));
-        cmds.push_back(commands.Get("Move: East"));
-        cmds.push_back(commands.Get("Move: West"));
-        cmds.push_back(commands.Get("Move: Unknown Direction"));
-
-        /* inspection/visual */
-
-        cmds.push_back(commands.Get("Get Current Room"));
-        cmds.push_back(commands.Get("Look Around"));
-        cmds.push_back(commands.Get("Check Inventory"));
-
-        /* take/drop items, special commands */
-
-        for (auto& [name, item] : items) {
-            auto hintText = item.GetAttrs().isFound? "" : " (No Hints)";
-            bool inRoom = IsItemInRoom(name, currentRoom),
-                inInv = IsItemInInv(name);
-
-            if (inRoom && item.GetFlags().canCarry) {
-                cmds.push_back(commands.Get(fmt::format("Take Item: {}{}", name, hintText)));
-            }
-            if (inInv) {
-                cmds.push_back(commands.Get(fmt::format("Drop Item: {}{}", name, hintText)));
-            }
-            if (inRoom) {
-                cmds.push_back(commands.Get(fmt::format("Inspect Item: {}{}", name, hintText)));
-            }
-
-            if (inInv || inRoom) {
-                for (const auto &cmd : item.GetSpecialCommands()) {
-                    cmds.push_back(cmd);
-                }
-            }
+    switch(state) {
+        case GameState::ExitMenu: {
+            return std::vector<Command>{
+                commands.Get("Exit: Yes"),
+                commands.Get("Exit: No"),
+                commands.Get("Exit: Unknown")
+            };
         }
 
-        /* take/drop failsafes */
-        cmds.push_back(commands.Get("Take Item: Invalid"));
-        cmds.push_back(commands.Get("Take Item: Unknown"));
-        cmds.push_back(commands.Get("Drop Item: Invalid"));
-        cmds.push_back(commands.Get("Drop Item: Unknown"));
+        case GameState::Loading: {
+            return {};
+        }
 
-        /* settings - text scroll speed */
-        cmds.push_back(commands.Get("Set Text Scroll Speed: Slow"));
-        cmds.push_back(commands.Get("Set Text Scroll Speed: Medium"));
-        cmds.push_back(commands.Get("Set Text Scroll Speed: Fast"));
-        cmds.push_back(commands.Get("Set Text Scroll Speed: Invalid"));
+        case GameState::Playing: {
 
-        /* settings - cursor style */
-        cmds.push_back(commands.Get("Set Cursor Style: Vertical Bar"));
-        cmds.push_back(commands.Get("Set Cursor Style: Underline"));
-        cmds.push_back(commands.Get("Set Cursor Style: OutlineBox"));
-        cmds.push_back(commands.Get("Set Cursor Style: TransparentBox"));
-        cmds.push_back(commands.Get("Set Cursor Style: Invalid"));
-        
-        /* misc. system */
-        cmds.push_back(commands.Get("General Help"));
-        cmds.push_back(commands.Get("List Settings"));
-        cmds.push_back(commands.Get("Exit Game"));
+            std::vector<Command> cmds;
 
-        /* failsafes */
-        cmds.push_back(commands.Get("Unknown Setting"));
-        cmds.push_back(commands.Get("Invalid Command"));
+            /* movement */
+            
+            cmds.push_back(commands.Get("Move: North"));
+            cmds.push_back(commands.Get("Move: South"));
+            cmds.push_back(commands.Get("Move: East"));
+            cmds.push_back(commands.Get("Move: West"));
+            cmds.push_back(commands.Get("Move: Unknown Direction"));
 
-    } else if (state == GameState::ExitMenu) {
-        cmds.push_back(commands.Get("Exit: Yes"));
-        cmds.push_back(commands.Get("Exit: No"));
-        cmds.push_back(commands.Get("Exit: Unknown"));
+            /* inspection/visual */
+
+            cmds.push_back(commands.Get("Get Current Room"));
+            cmds.push_back(commands.Get("Look Around"));
+            cmds.push_back(commands.Get("Check Inventory"));
+
+            /* take/drop items, special commands */
+
+            for (auto& [name, item] : items) {
+                auto hintText = item.GetAttrs().isFound? "" : " (No Hints)";
+                bool inRoom = IsItemInRoom(name, currentRoom),
+                    inInv = IsItemInInv(name);
+
+                if (inRoom && item.GetFlags().canCarry) {
+                    cmds.push_back(commands.Get(fmt::format("Take Item: {}{}", name, hintText)));
+                }
+                if (inInv) {
+                    cmds.push_back(commands.Get(fmt::format("Drop Item: {}{}", name, hintText)));
+                }
+                if (inRoom) {
+                    cmds.push_back(commands.Get(fmt::format("Inspect Item: {}{}", name, hintText)));
+                }
+
+                if (inInv || inRoom) {
+                    for (const auto &cmd : item.GetSpecialCommands()) {
+                        cmds.push_back(cmd);
+                    }
+                }
+            }
+
+            /* take/drop failsafes */
+            cmds.push_back(commands.Get("Take Item: Invalid"));
+            cmds.push_back(commands.Get("Take Item: Unknown"));
+            cmds.push_back(commands.Get("Drop Item: Invalid"));
+            cmds.push_back(commands.Get("Drop Item: Unknown"));
+
+            /* settings - text scroll speed */
+            cmds.push_back(commands.Get("Set Text Scroll Speed: Slow"));
+            cmds.push_back(commands.Get("Set Text Scroll Speed: Medium"));
+            cmds.push_back(commands.Get("Set Text Scroll Speed: Fast"));
+            cmds.push_back(commands.Get("Set Text Scroll Speed: Invalid"));
+
+            /* settings - cursor style */
+            cmds.push_back(commands.Get("Set Cursor Style: Vertical Bar"));
+            cmds.push_back(commands.Get("Set Cursor Style: Underline"));
+            cmds.push_back(commands.Get("Set Cursor Style: OutlineBox"));
+            cmds.push_back(commands.Get("Set Cursor Style: TransparentBox"));
+            cmds.push_back(commands.Get("Set Cursor Style: Invalid"));
+            
+            /* misc. system */
+            cmds.push_back(commands.Get("General Help"));
+            cmds.push_back(commands.Get("List Settings"));
+            cmds.push_back(commands.Get("Exit Game"));
+
+            /* failsafes */
+            cmds.push_back(commands.Get("Unknown Setting"));
+            cmds.push_back(commands.Get("Invalid Command"));
+            return cmds;
+        }
+
+        default: return {};
     }
-
-    return cmds;
 }
 
 /* player interaction */
@@ -557,13 +567,13 @@ std::string TextBasedGame::InventoryRepr() {
         case 2: return fmt::format("Your inventory contains {} and {}.", FullItemRepr(inv[0]), FullItemRepr(inv[1]));
         case 3: return fmt::format("Your inventory contains {}, {} and {}.", FullItemRepr(inv[0]), FullItemRepr(inv[1]), FullItemRepr(inv[2]));
         default: {
-            std::string s = "Your inventory contains ";
+            std::stringstream ss("Your inventory contains ");
             for (uint8_t i = 0; i < inv.size() - 2; i++) {
-                s += (FullItemRepr(inv[i]) + ", ");
+                ss << (FullItemRepr(inv[i]) + ", ");
             }
-            s += FullItemRepr(inv[inv.size() - 2]);
-            s += fmt::format(" and {}.", FullItemRepr(inv[inv.size() - 1]));
-            return s;
+            ss << FullItemRepr(inv[inv.size() - 2]);
+            ss << fmt::format(" and {}.", FullItemRepr(inv[inv.size() - 1]));
+            return ss.str();
         }
     }
 }
@@ -576,13 +586,13 @@ std::string TextBasedGame::CurrentRoomRepr() {
         case 2: return fmt::format("You see {} and {}.", FullItemRepr(roomItems[0]), FullItemRepr(roomItems[1]));
         case 3: return fmt::format("You see {}, {} and {}.", FullItemRepr(roomItems[0]), FullItemRepr(roomItems[1]), FullItemRepr(roomItems[2]));
         default: {
-            std::string s = "You see ";
+            std::stringstream ss("You see ");
             for (uint8_t i = 0; i < roomItems.size() - 2; i++) {
-                s += (FullItemRepr(roomItems[i]) + ", ");
+                ss << (FullItemRepr(roomItems[i]) + ", ");
             }
-            s += FullItemRepr(roomItems[roomItems.size() - 2]);
-            s += fmt::format(" and {}.", FullItemRepr(roomItems[roomItems.size() - 1]));
-            return s;
+            ss << FullItemRepr(roomItems[roomItems.size() - 2]);
+            ss << fmt::format(" and {}.", FullItemRepr(roomItems[roomItems.size() - 1]));
+            return ss.str();
         }
     }
 }

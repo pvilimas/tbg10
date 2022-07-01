@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <queue>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -34,6 +35,8 @@
     - all moving around rooms, taking or dropping items, [talking to npcs]
     - drawing everything to the screen
 
+    TODO pressing up/down cycles through history (a fun one)
+
     TODO much much later - convert to ABC, several base classes for different games
 
 */
@@ -45,13 +48,8 @@ class TextBasedGame {
     /*
         What state the game is currently in - "where" is the player?
         Has different commands available for each level
-        TODO split GetCommands into multiple methods based on each state, or have a switch statement
-        - no if/else ladders
-        - yeah switch is the way to go here
 
-        TODO (potentially) add a state for initializing or loading, as short as it is
-        eh maybe not, it's very short
-        but test for bugs like maybe keymashing as it's loading the game, might segfault idk
+        TODO test for bugs like maybe keymashing as it's loading the game, might segfault idk
     */
     enum GameState {
         /*
@@ -97,8 +95,8 @@ class TextBasedGame {
             generally, 
             "Invalid..." = invalid argument
             "Unknown..." = missing argument
-            
-            TODO maybe a substruct here: Messages::Errors::InvalidDir
+
+            no need for Errors substruct, it's pretty obvious which ones are errors (for now anyway)
         */
         
         /*  When the player tries to move north (or whatever) and there's no path that way  */
@@ -244,9 +242,6 @@ class TextBasedGame {
             A -dir-> B
             B -rev-> A
         where rev is the reverse of dir
-
-        TODO better argument names, but maybe this is good for me
-        TODO rename setup functions to setup...?
     */
     void LinkRooms(std::string a, Direction d, std::string b, bool bothWays = true);
 
@@ -361,7 +356,6 @@ class TextBasedGame {
         - 2 items -> Your inventory contains <a lamp> and <an orange>.
         - 3 items -> Your inventory contains <a lamp>, <an orange>, and <some jews>.
         - 4+ items -> Your inventory contains <a lamp>, <an orange>, ..., and <some jews>.
-        TODO optimize these two functions with stringstream>>
     */
     std::string InventoryRepr();
     

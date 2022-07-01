@@ -12,14 +12,6 @@
 #include "assetmanager.hpp"
 
 /*
-    TODO
-    - keep AssetManager::fontSize (used for loading fonts) and Graphics::fontSize (for drawing) the same
-        - do this by passing in fontSize to AM::AM
-        - if needed in future, make AssetManagerConfig for more args but not necessary prob
-    - check if need to do the same thing for spacing - does loadfontex use fontSpacing?
-*/
-
-/*
     Handles drawing everything to the screen, events, graphics management, specifically:
     - Lines of game text ("textOut") and player input ("textIn")
     - Game images (for each room)
@@ -164,9 +156,9 @@ class Graphics {
     static inline constexpr int FrameThick = 2;
     /*
         the font size used to draw fonts - should be the same as AssetManager::fontSize,
-        which isn't linked to this. that is used to load them, so they should be the same.
+        which is used to load fonts
     */
-    static inline constexpr int FontSize = 20;
+    static inline constexpr int FontSize = AssetManager::FontSize; // 20
     
     /*
         the font spacing used to draw fonts - see above/todos
