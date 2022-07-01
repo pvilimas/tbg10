@@ -22,7 +22,7 @@
 /*
 
     TextBasedGame class - runs the game, has a graphics instance
-    main.cpp is used to start up this class and wrap it up and that's it
+    main.cpp is used to start up this class, catch a couple of exceptions, wrap it up and that's it
     nearly all work is done inside here, including:
     - game loop
     - initializing everything
