@@ -12,7 +12,7 @@ Room::Room(
     messages = _messages;
 }
 
-Room::~Room() {}
+Room::~Room() { }
 
 std::string& Room::GetName() {
     return name;

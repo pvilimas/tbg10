@@ -4,10 +4,8 @@
 #include <string>
 
 /*
-    TODO
-    rework globals into a class, with static instances maybe
-    and rename to direction
-    2 methods: repr and reverse
+    NOTE - tried reworking direction into a class, isn't possible
+    https://discord.com/channels/331718482485837825/845027465419161621/992081218004865104
 */
 
 /*
@@ -21,14 +19,22 @@ enum class Direction {
     Invalid
 };
 
-/*
-    Get the in-game string representation of a Direction
-*/
-std::string ReprDirection(Direction& d);
+constexpr inline std::string_view direction_reprs[2][5] = {
+    { "North", "South", "East", "West", "INVALID" },
+    { "north", "south", "east", "west", "invalid" }
+};
 
-/*
-    Get the reverse of a direction, the opposite way
-*/
-Direction ReverseDirection(Direction& d);
+constexpr inline Direction direction_revs[5] = {
+    Direction::South,
+    Direction::North,
+    Direction::West,
+    Direction::East,
+    Direction::Invalid
+};
+
+/*  in-game string representation  */
+std::string DirectionRepr(Direction const &d, bool uppercase);
+/*  the opposite way  */
+Direction DirectionReverse(Direction const &d);
 
 #endif /* __GLOBALS__ */

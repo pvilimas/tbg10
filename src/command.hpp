@@ -13,8 +13,6 @@ class Command {
 
     private:
 
-    /*  internal name of the command  */
-    std::string repr;
     /*  regex pattern object to match against  */
     std::regex pattern;
     /*
@@ -40,7 +38,6 @@ class Command {
         _callback - the callback function, must be void -> void
     */
     Command(
-        std::string _repr,
         std::string _pattern_str,
         std::vector<std::string> _hints,
         std::function<void()> _callback = []{}
@@ -48,9 +45,6 @@ class Command {
     /*  Command destructor, empty method  */
     ~Command();
 
-    /*  get internal name of the command  */
-    std::string& GetRepr();
-    
     /*  get a list of in-game hints  */
     std::vector<std::string>& GetHints();
 

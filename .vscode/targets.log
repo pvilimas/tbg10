@@ -6,13 +6,11 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
 
-# Make data base, printed on Wed Jun 29 21:03:41 2022
+# Make data base, printed on Fri Jul  1 11:14:11 2022
 
 # Variables
 
- 
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
@@ -52,7 +50,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-b27be357-4e3e-4636-9052-0ec73fe0e7f8.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/lh/7r9w7h1n38b44qm9lbcvbrvh0000gn/T/vscode-ipc-59976975-e403-4821-8dff-227bb6e4feae.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -182,11 +180,10 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 93002
+VSCODE_PID = 85191
 # environment
 NVM_RC_VERSION = 
 # variable set hash-table stats:
- 
 # Load=86/1024=8%, Rehash=0, Collisions=1/113=1%
 
 # Pattern-specific Variable Values
@@ -195,16 +192,22 @@ NVM_RC_VERSION =
 
 # Directories
 
-# . (device 16777222, inode 59347647): 12 files, no impossibilities.
-# src (device 16777222, inode 65579421): 19 files, no impossibilities.
+# . (device 16777222, inode 59347647): 14 files, no impossibilities.
+# src (device 16777222, inode 65579421): 21 files, no impossibilities.
 
-# 31 files, no impossibilities in 2 directories.
+# 35 files, no impossibilities in 2 directories.
 
 # Implicit Rules
 
 # No implicit rules.
 
 # Files
+
+# Not a target:
+src/collection.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 # Not a target:
 src/assetmanager.cpp:
@@ -317,6 +320,7 @@ clean:
 # ^ := 
 # automatic
 # ? := 
+ 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=1/10=10%
 #  commands to execute (from `Makefile', line 19):
@@ -336,7 +340,7 @@ src/item.cpp:
 #  Modification time never checked.
 #  File has not been updated.
 
-main: src/assetmanager.cpp src/command.cpp src/globals.cpp src/graphics.cpp src/item.cpp src/main.cpp src/room.cpp src/textbasedgame.cpp src/timer.cpp
+main: src/assetmanager.cpp src/collection.cpp src/command.cpp src/globals.cpp src/graphics.cpp src/item.cpp src/main.cpp src/room.cpp src/textbasedgame.cpp src/timer.cpp
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -345,7 +349,7 @@ main: src/assetmanager.cpp src/command.cpp src/globals.cpp src/graphics.cpp src/
 	
 
 # files hash-table stats:
-# Load=17/1024=2%, Rehash=0, Collisions=0/44=0%
+# Load=18/1024=2%, Rehash=0, Collisions=0/46=0%
 # VPATH Search Paths
 
 # No `vpath' search paths.
@@ -357,6 +361,6 @@ main: src/assetmanager.cpp src/command.cpp src/globals.cpp src/graphics.cpp src/
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Wed Jun 29 21:03:41 2022
+# Finished Make data base on Fri Jul  1 11:14:11 2022
 
  

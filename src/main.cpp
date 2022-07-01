@@ -4,7 +4,6 @@
 /*
     TODO:
 
-    - remove unused stuff
     - deal with any other TODOs
     
     - make branches for
@@ -17,7 +16,7 @@
         - hidden dialogoptions
 
     current assumptions:
-    - inv starts empty
+    - inv starts empty - keep it that way
 */
 
 int main() {
@@ -35,9 +34,13 @@ int main() {
     ChangeDirectory(GetApplicationDirectory());
     
     TextBasedGame tbg = TextBasedGame();
+    tbg.Init();
+
     try {
         tbg.Run();
-    } catch (TextBasedGame::ExitGameException e) {}
+    } catch (TextBasedGame::ExitGameException e) {
+        // call ~tbg()
+    }
 
     return 0;
 }

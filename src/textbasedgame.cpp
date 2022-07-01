@@ -2,14 +2,31 @@
 
 /* ------- TEXTBASEDGAME ------- */
 
-
 TextBasedGame::TextBasedGame() {
     graphics = new Graphics();
+    state = GameState::Loading;
+}
+
+TextBasedGame::~TextBasedGame() {
+    delete graphics;
+}
+
+void TextBasedGame::Init() {
+
+    currentRoom = "Kitchen";
+
+    InitRooms();
+    InitItems();
+    InitCommands();
+
     state = GameState::Playing;
+    Write(fmt::format("You are in the {}.", rooms.Get(currentRoom).GetRepr()));
+}
 
-    /* init */
+void TextBasedGame::InitRooms() {
 
-    /* ROOMS */
+    /* creating */
+
     for (auto &room : std::vector<Room>{
         Room("Kitchen", "kitchen", Room::MakeEmptyPaths(), std::unordered_map<Room::Message, std::string>{
             { Room::Message::OnEnter, "You have entered the kitchen." },
@@ -24,10 +41,19 @@ TextBasedGame::TextBasedGame() {
             { Room::Message::OnLook, "You are in the garden." }
         }),
     }) {
-        rooms.emplace(room.GetName(), room);
+        rooms.Add(room.GetName(), room);
     }
 
-    /* ITEMS */
+    /* linking */
+
+    LinkRooms("Kitchen", Direction::North, "Bedroom"); // kitchen -> north -> bedroom
+    std::cout<<fmt::format("'{}'\n", rooms.Get("Kitchen").GetPath(Direction::North));
+}
+
+void TextBasedGame::InitItems() {
+
+    /* creating */
+
     for (auto &item : std::vector<Item>{
         Item("Red Key", "red key", std::unordered_map<Item::Message, std::string>{
             { Item::Message::OnInspect, "A shiny red key." }
@@ -35,7 +61,7 @@ TextBasedGame::TextBasedGame() {
         Item("Red Door", "red door", std::unordered_map<Item::Message, std::string>{
             { Item::Message::OnInspect, "This red door stands on the north side of the room, and it has a keyhole in the knob." }
         }, std::vector<Command>{
-            Command("Red Door: Unlock", "unlock (red )?door", std::vector<std::string>{"unlock red door"}, [&]{
+            Command("unlock (red )?door", {"unlock red door"}, [&]{
                 if (IsItemInInv("Red Key")) {
                     player.RemoveItemFromInv("Red Key");
                     LinkRooms("Bedroom", Direction::North, "Garden");
@@ -51,22 +77,151 @@ TextBasedGame::TextBasedGame() {
         Item::Attrs { false } ,
         Item::Flags { false } ),
     }) {
-        items.emplace(item.GetName(), item);
+        items.Add(item.GetName(), item);
     }
     
-    /* setup */
+    /* adding */
 
-    LinkRooms("Kitchen", Direction::North, "Bedroom"); // kitchen -> north -> bedroom
     AddItemToRoom("Red Key", "Kitchen");
     AddItemToRoom("Red Door", "Bedroom");
-
-    currentRoom = "Kitchen";
-    Write(fmt::format("You are in the {}.", rooms.at(currentRoom).GetRepr()));
 }
 
-TextBasedGame::~TextBasedGame() {
-    delete graphics;
+void TextBasedGame::InitCommands() {
+    
+    /* creating */
+
+    /* movement */
+
+    commands.Add("Move: North", Command("(go|move )?n(orth)?", { "go north", "move north", "north" }, [&]{ TryMove(Direction::North); }));
+    commands.Add("Move: South", Command("(go|move )?s(outh)?", { "go south", "move south", "south" }, [&]{ TryMove(Direction::South); }));
+    commands.Add("Move: East", Command("(go|move )?e(ast)?", { "go east", "move east", "east" }, [&]{ TryMove(Direction::East); }));
+    commands.Add("Move: West", Command("(go|move )?w(est)?", { "go west", "move west", "west" }, [&]{ TryMove(Direction::West); }));
+    commands.Add("Move: Unknown Direction", Command("(go|move ).*", {}, [&]{ Write(Messages::InvalidDir); }));
+
+    /* inspection + visual */
+
+    commands.Add("Get Current Room", Command("(where am i)|((current )?room)", { "current room", "room", "where am i" },
+        [&]{ Write(fmt::format("You are in the {}.", rooms.Get(currentRoom).GetRepr())); })
+    );
+    commands.Add("Look Around", Command("look( around)?", {"look around"}, [&]{
+        for (auto &item : rooms.Get(currentRoom).GetItems()) {
+            items.Get(item).GetAttrs().isFound = true;
+        }
+        Write(rooms.Get(currentRoom).GetMessage(Room::Message::OnLook) + " " + CurrentRoomRepr());
+    }));
+    commands.Add("Check Inventory", Command("(check )?inv(entory)?", { "check inventory", "inventory" }, [&]{ Write(InventoryRepr()); }));
+
+    /* take/drop items, special commands */
+
+    for (auto& [name, item] : items) {
+        auto repr = item.GetRepr();
+
+        /* no hints versions of these are to be used when the player isn't supposed to be getting hints about it */
+
+        commands.Add(fmt::format("Take Item: {}", name), Command(fmt::format("(take|pick up) {}", name), { fmt::format("take {}", repr), fmt::format("pick up {}", repr) }, [&]{ TryTakeItem(name); }));
+        commands.Add(fmt::format("Take Item: {} (No Hints)", name), Command(fmt::format("(take|pick up) {}", name), {}, [&]{ TryTakeItem(name); }));
+
+        commands.Add(fmt::format("Drop Item: {}", name), Command(fmt::format("(drop|put down) {}", name), { fmt::format("drop {}", repr), fmt::format("put down {}", repr) }, [&]{ TryDropItem(name); }));
+        commands.Add(fmt::format("Drop Item: {} (No Hints)", name), Command(fmt::format("(drop|put down) {}", name), {}, [&]{ TryDropItem(name); }));
+
+        commands.Add(fmt::format("Inspect Item: {}", name), Command(fmt::format("(look at|inspect) {}", name), { fmt::format("inspect {}", repr), fmt::format("look at {}", repr) }, [&]{ TryInspectItem(name); }));
+        commands.Add(fmt::format("Inspect Item: {} (No Hints)", name), Command(fmt::format("(look at|inspect) {}", name), {}, [&]{ TryInspectItem(name); }));
+    }
+
+    /* take/drop failsafes */
+
+    commands.Add("Take Item: Invalid", Command("take .*", {}, [&]{ Write(Messages::InvalidTake); }));
+    commands.Add("Take Item: Unknown", Command("take.*", {}, [&]{ Write(Messages::UnknownTake); }));
+    commands.Add("Drop Item: Invalid", Command("drop .*", {}, [&]{ Write(Messages::InvalidDrop); }));
+    commands.Add("Drop Item: Unknown", Command("drop.*", {}, [&]{ Write(Messages::UnknownDrop); }));
+
+    /* settings - text scroll speed */
+    commands.Add("Set Text Scroll Speed: Slow", Command("set (textspeed|ts) (s(low)?)|(1)", { "set textspeed slow", "set ts slow" }, [&]{
+        graphics->ChangeTextSpeed(Graphics::TextSpeed::Slow);
+        Write(Messages::TextSpeedSet);
+    }));
+    commands.Add("Set Text Scroll Speed: Medium", Command("set (textspeed|ts) (m(ed(ium)?)?)|(2)", { "set textspeed med", "set ts med" }, [&]{
+        graphics->ChangeTextSpeed(Graphics::TextSpeed::Medium);
+        Write(Messages::TextSpeedSet);
+    }));
+    commands.Add("Set Text Scroll Speed: Fast", Command("set (textspeed|ts) (f(ast)?)|(3)", { "set textspeed fast", "set ts fast" }, [&]{
+        graphics->ChangeTextSpeed(Graphics::TextSpeed::Fast);
+        Write(Messages::TextSpeedSet);
+    }));
+    commands.Add("Set Text Scroll Speed: Invalid", Command("set (textspeed|ts).*", {}, [&]{ Write(Messages::InvalidTextSpeed); }));
+
+    /* cursor style */
+    commands.Add("Set Cursor Style: Vertical Bar", Command("set (cursor( style)?|cs|c) 1", {
+        "set cursor style 1",
+        "set cursor 1",
+        "set cs 1"
+    }, [&]{
+        graphics->ChangeCursorStyle(Graphics::CursorStyle::VerticalBar);
+        Write(Messages::CursorStyleSet);
+    }));
+    commands.Add("Set Cursor Style: Underline", Command("set (cursor( style)?|cs|c) 2", {
+        "set cursor style 2",
+        "set cursor 2",
+        "set cs 2"
+    }, [&]{
+        graphics->ChangeCursorStyle(Graphics::CursorStyle::Underline);
+        Write(Messages::CursorStyleSet);
+    }));
+    commands.Add("Set Cursor Style: OutlineBox", Command("set (cursor( style)?|cs|c) 3", {
+        "set cursor style 3",
+        "set cursor 3",
+        "set cs 3"
+    }, [&]{
+        graphics->ChangeCursorStyle(Graphics::CursorStyle::OutlineBox);
+        Write(Messages::CursorStyleSet);
+    }));
+    commands.Add("Set Cursor Style: TransparentBox", Command("set (cursor( style)?|cs|c) 4", {
+        "set cursor style 4",
+        "set cursor 4",
+        "set cs 4"
+    }, [&]{
+        graphics->ChangeCursorStyle(Graphics::CursorStyle::TransparentBox);
+        Write(Messages::CursorStyleSet);
+    }));
+    commands.Add("Set Cursor Style: Invalid", Command("set (cursor( style)?|cs|c).*", {}, [&]{
+        Write(Messages::InvalidCursorStyle);
+    }));
+    
+    /* misc. system */
+    commands.Add("General Help", Command("help( me)?", {
+        "help",
+        "help me",
+        "game help"
+    }, [&]{
+        Write(std::vector<std::string>{
+            "look around\n"
+            "go <north/south/east/west>\n"
+            "take/drop <item>\n"
+            "...",
+
+            "check inventory\n"
+            "settings\n"
+            "quit\n"
+            "..."
+        });
+    }));
+    commands.Add("List Settings", Command("settings", { "settings", "game settings" }, [&]{
+        Write(
+            "set textspeed <slow/med/fast>\n"
+            "set cursor <1/2/3/4>"
+        );
+    }));
+    commands.Add("Exit Game", Command("(q(uit)?|exit)( game)?", { "exit game", "quit game" }, [&]{ ChangeState(GameState::ExitMenu); }));
+
+    /* failsafes */
+    commands.Add("Unknown Setting", Command("set.*", {}, [&]{ Write("What do you want to set?\nUsage: set <setting> <arg>"); }));
+    commands.Add("Invalid Command", Command(".*", {}, [&]{ Write(Messages::InvalidCommand); }));
+
+    commands.Add("Exit: Yes", Command("(y(es)?)|(exit)|(quit)", { "yes", "exit", "quit" }, []{ throw ExitGameException(); }));
+    commands.Add("Exit: No", Command("n(o)?", { "no" }, [&]{ ChangeState(GameState::Playing); }));
+    commands.Add("Exit: Unknown", Command(".*", {}, [&]{ Write(Messages::InvalidExitCommand); }));
 }
+
 
 void TextBasedGame::Run() {
     static Timer backspaceTimer(0.1);
@@ -120,14 +275,14 @@ void TextBasedGame::ChangeState(TextBasedGame::GameState newState) {
 /* setup */
 
 void TextBasedGame::LinkRooms(std::string a, Direction d, std::string b, bool bothWays) {
-    rooms.at(a).SetPath(d, b);
+    rooms.Get(a).SetPath(d, b);
     if (bothWays) {
-        rooms.at(b).SetPath(ReverseDirection(d), a);
+        rooms.Get(b).SetPath(DirectionReverse(d), a);
     }
 }
 
 void TextBasedGame::AddItemToRoom(std::string itemName, std::string roomName) {
-    rooms.at(roomName).AddItem(itemName);
+    rooms.Get(roomName).AddItem(itemName);
 }
 
 void TextBasedGame::AddItemToInventory(std::string itemName) {
@@ -214,10 +369,6 @@ void TextBasedGame::UpdateHint() {
     }
 
     for (auto &cmd : GetCommands()) {
-        if (cmd.GetHints().size() == 0) {
-            continue;
-        }
-
         for (auto &hint : cmd.GetHints()) {
             // return the first match found
             if (hint.substr(0, len) == input) {
@@ -236,98 +387,39 @@ std::vector<Command> TextBasedGame::GetCommands() {
     std::vector<Command> cmds;
     
     if (state == GameState::Playing) {
+        
         /* movement */
-        cmds.push_back(Command("Move North", "(go|move )?n(orth)?", std::vector<std::string>{
-            "go north",
-            "move north",
-            "north"
-        }, [&]{ TryMove(Direction::North); }));
-        cmds.push_back(Command("Move South", "(go|move )?s(outh)?", std::vector<std::string>{
-            "go south",
-            "move south",
-            "south"
-        }, [&]{ TryMove(Direction::South); }));
-        cmds.push_back(Command("Move East", "(go|move )?e(ast)?", std::vector<std::string>{
-            "go east",
-            "move east",
-            "east"
-        }, [&]{ TryMove(Direction::East); }));
-        cmds.push_back(Command("Move West", "(go|move )?w(est)?", std::vector<std::string>{
-            "go west",
-            "move west",
-            "west"
-        }, [&]{ TryMove(Direction::West); }));
-        cmds.push_back(Command("Move Unknown Direction", "(go|move ).*", std::vector<std::string>(), [&]{ Write(Messages::InvalidDir); }));
+        
+        cmds.push_back(commands.Get("Move: North"));
+        cmds.push_back(commands.Get("Move: South"));
+        cmds.push_back(commands.Get("Move: East"));
+        cmds.push_back(commands.Get("Move: West"));
+        cmds.push_back(commands.Get("Move: Unknown Direction"));
 
         /* inspection/visual */
-        cmds.push_back(Command("Get Current Room", "(where am i)|((current )?room)", std::vector<std::string>{
-            "current room",
-            "room",
-            "where am i"
-        }, [&]{ Write(fmt::format("You are in the {}.", rooms.at(currentRoom).GetRepr())); }));
-        cmds.push_back(Command("Look Around", "look( around)?", std::vector<std::string>{"look around"}, [&]{
-            for (auto &item : rooms.at(currentRoom).GetItems()) {
-                items.at(item).GetAttrs().isFound = true;
-            }
-            Write(rooms.at(currentRoom).GetMessage(Room::Message::OnLook) + " " + CurrentRoomRepr());
-        }));
-        cmds.push_back(Command("Check Inventory", "(check )?inv(entory)?", std::vector<std::string>{
-            "check inventory",
-            "inventory"
-        }, [&]{ Write(InventoryRepr()); }));
+
+        cmds.push_back(commands.Get("Get Current Room"));
+        cmds.push_back(commands.Get("Look Around"));
+        cmds.push_back(commands.Get("Check Inventory"));
 
         /* take/drop items, special commands */
 
         for (auto& [name, item] : items) {
-            auto repr = item.GetRepr();
+            auto hintText = item.GetAttrs().isFound? "" : " (No Hints)";
+            bool inRoom = IsItemInRoom(name, currentRoom),
+                inInv = IsItemInInv(name);
 
-            std::vector<std::string> takeHints;
-            std::vector<std::string> dropHints;
-            std::vector<std::string> lookHints;
-            if (item.GetAttrs().isFound) {
-                takeHints = std::vector<std::string>{
-                    fmt::format("take {}", repr),
-                    fmt::format("pick up {}", repr),
-                };
-                dropHints = std::vector<std::string>{
-                    fmt::format("drop {}", repr),
-                    fmt::format("put down {}", repr),
-                };
-                lookHints = std::vector<std::string>{
-                    fmt::format("inspect {}", repr),
-                    fmt::format("look at {}", repr),
-                };
-            } else {
-                takeHints = {};
-                dropHints = {};
-                lookHints = {};
+            if (inRoom && item.GetFlags().canCarry) {
+                cmds.push_back(commands.Get(fmt::format("Take Item: {}{}", name, hintText)));
+            }
+            if (inInv) {
+                cmds.push_back(commands.Get(fmt::format("Drop Item: {}{}", name, hintText)));
+            }
+            if (inRoom) {
+                cmds.push_back(commands.Get(fmt::format("Inspect Item: {}{}", name, hintText)));
             }
 
-            if (IsItemInRoom(name, currentRoom) && item.GetFlags().canCarry) {
-                cmds.push_back(Command(
-                    fmt::format("Take Item: {}", name),
-                    fmt::format("(take|pick up) {}", name),
-                    takeHints,
-                    [&]{ TryTakeItem(name); }
-                ));
-            }
-            if (IsItemInInv(name)) {
-                cmds.push_back(Command(
-                    fmt::format("Drop Item: {}", name),
-                    fmt::format("(drop|put down) {}", name),
-                    dropHints,
-                    [&]{ TryDropItem(name); }
-                ));
-            }
-            if (IsItemInRoom(name, currentRoom)) {
-                cmds.push_back(Command(
-                    fmt::format("Inspect Item: {}", name),
-                    fmt::format("(look at|inspect) {}", name),
-                    lookHints,
-                    [&]{ TryInspectItem(name); }
-                ));
-            }
-            if (IsItemInInv(name) || IsItemInRoom(name, currentRoom)) {
+            if (inInv || inRoom) {
                 for (const auto &cmd : item.GetSpecialCommands()) {
                     cmds.push_back(cmd);
                 }
@@ -335,125 +427,37 @@ std::vector<Command> TextBasedGame::GetCommands() {
         }
 
         /* take/drop failsafes */
-        /* if hint is "" ignore */
-        cmds.push_back(Command("Take Item: Invalid", "take .*", std::vector<std::string>(), [&]{ Write(Messages::InvalidTake); }));
-        cmds.push_back(Command("Take Item: Unknown", "take.*", std::vector<std::string>(), [&]{ Write(Messages::UnknownTake); }));
-        cmds.push_back(Command("Drop Item: Invalid", "drop .*", std::vector<std::string>(), [&]{ Write(Messages::InvalidDrop); }));
-        cmds.push_back(Command("Drop Item: Unknown", "drop.*", std::vector<std::string>(), [&]{ Write(Messages::UnknownDrop); }));
+        cmds.push_back(commands.Get("Take Item: Invalid"));
+        cmds.push_back(commands.Get("Take Item: Unknown"));
+        cmds.push_back(commands.Get("Drop Item: Invalid"));
+        cmds.push_back(commands.Get("Drop Item: Unknown"));
 
-        /* settings */
+        /* settings - text scroll speed */
+        cmds.push_back(commands.Get("Set Text Scroll Speed: Slow"));
+        cmds.push_back(commands.Get("Set Text Scroll Speed: Medium"));
+        cmds.push_back(commands.Get("Set Text Scroll Speed: Fast"));
+        cmds.push_back(commands.Get("Set Text Scroll Speed: Invalid"));
 
-        /* text scroll speed */
-        cmds.push_back(Command("Set Text Scroll Speed: Slow", "set (textspeed|ts) (s(low)?)|(1)", std::vector<std::string>{
-            "set textspeed slow",
-            "set ts slow"
-        }, [&]{
-            graphics->ChangeTextSpeed(Graphics::TextSpeed::Slow);
-            Write(Messages::TextSpeedSet);
-        }));
-        cmds.push_back(Command("Set Text Scroll Speed: Medium", "set (textspeed|ts) (m(ed(ium)?)?)|(2)", std::vector<std::string>{
-            "set textspeed med",
-            "set ts med"
-        }, [&]{
-            graphics->ChangeTextSpeed(Graphics::TextSpeed::Medium);
-            Write(Messages::TextSpeedSet);
-        }));
-        cmds.push_back(Command("Set Text Scroll Speed: Fast", "set (textspeed|ts) (f(ast)?)|(3)", std::vector<std::string>{
-            "set textspeed fast",
-            "set ts fast"
-        }, [&]{
-            graphics->ChangeTextSpeed(Graphics::TextSpeed::Fast);
-            Write(Messages::TextSpeedSet);
-        }));
-        cmds.push_back(Command("Set Text Scroll Speed: Invalid", "set (textspeed|ts).*", std::vector<std::string>(), [&]{
-            Write(Messages::InvalidTextSpeed);
-        }));
-
-        /* cursor style */
-        cmds.push_back(Command("Set Cursor Style: Vertical Bar", "set (cursor( style)?|cs|c) 1", std::vector<std::string>{
-            "set cursor style 1",
-            "set cursor 1",
-            "set cs 1"
-        }, [&]{
-            graphics->ChangeCursorStyle(Graphics::CursorStyle::VerticalBar);
-            Write(Messages::CursorStyleSet);
-        }));
-        cmds.push_back(Command("Set Cursor Style: Underline", "set (cursor( style)?|cs|c) 2", std::vector<std::string>{
-            "set cursor style 2",
-            "set cursor 2",
-            "set cs 2"
-        }, [&]{
-            graphics->ChangeCursorStyle(Graphics::CursorStyle::Underline);
-            Write(Messages::CursorStyleSet);
-        }));
-        cmds.push_back(Command("Set Cursor Style: OutlineBox", "set (cursor( style)?|cs|c) 3", std::vector<std::string>{
-            "set cursor style 3",
-            "set cursor 3",
-            "set cs 3"
-        }, [&]{
-            graphics->ChangeCursorStyle(Graphics::CursorStyle::OutlineBox);
-            Write(Messages::CursorStyleSet);
-        }));
-        cmds.push_back(Command("Set Cursor Style: TransparentBox", "set (cursor( style)?|cs|c) 4", std::vector<std::string>{
-            "set cursor style 4",
-            "set cursor 4",
-            "set cs 4"
-        }, [&]{
-            graphics->ChangeCursorStyle(Graphics::CursorStyle::TransparentBox);
-            Write(Messages::CursorStyleSet);
-        }));
-        cmds.push_back(Command("Set Cursor Style: Invalid", "set (cursor( style)?|cs|c).*", std::vector<std::string>(), [&]{
-            Write(Messages::InvalidCursorStyle);
-        }));
+        /* settings - cursor style */
+        cmds.push_back(commands.Get("Set Cursor Style: Vertical Bar"));
+        cmds.push_back(commands.Get("Set Cursor Style: Underline"));
+        cmds.push_back(commands.Get("Set Cursor Style: OutlineBox"));
+        cmds.push_back(commands.Get("Set Cursor Style: TransparentBox"));
+        cmds.push_back(commands.Get("Set Cursor Style: Invalid"));
         
         /* misc. system */
-        cmds.push_back(Command("General Help", "help( me)?", std::vector<std::string>{
-            "help",
-            "help me",
-            "game help"
-        }, [&]{
-            Write(std::vector<std::string>{
-                "look around\n"
-                "go <north/south/east/west>\n"
-                "take/drop <item>\n"
-                "...",
-
-                "check inventory\n"
-                "settings\n"
-                "quit\n"
-                "..."
-            });
-        }));
-        cmds.push_back(Command("List Settings", "settings", std::vector<std::string>{
-            "settings",
-            "game settings"
-        }, [&]{
-            Write(
-                "set textspeed <slow/med/fast>\n"
-                "set cursor <1/2/3/4>"
-            );
-        }));
-        cmds.push_back(Command("Exit Game", "(q(uit)?|exit)( game)?", std::vector<std::string>{
-            "exit game",
-            "quit game"
-        }, [&]{ ChangeState(GameState::ExitMenu); }));
+        cmds.push_back(commands.Get("General Help"));
+        cmds.push_back(commands.Get("List Settings"));
+        cmds.push_back(commands.Get("Exit Game"));
 
         /* failsafes */
-        cmds.push_back(Command("Unknown Setting", "set.*", std::vector<std::string>(), [&]{ Write("What do you want to set?\nUsage: set <setting> <arg>"); }));
-        cmds.push_back(Command("Invalid Command", ".*", std::vector<std::string>(), [&]{ Write(Messages::InvalidCommand); }));
+        cmds.push_back(commands.Get("Unknown Setting"));
+        cmds.push_back(commands.Get("Invalid Command"));
 
     } else if (state == GameState::ExitMenu) {
-        cmds.push_back(Command("Exit: Yes", "(y(es)?)|(exit)|(quit)", std::vector<std::string>{
-            "yes",
-            "exit",
-            "quit"
-        }, []{ throw ExitGameException(); }));
-        cmds.push_back(Command("Exit: No", "n(o)?", std::vector<std::string>{
-            "no"
-        }, [&]{ ChangeState(GameState::Playing); }));
-        
-        /* failsafe */
-        cmds.push_back(Command("Exit: Unknown", ".*", std::vector<std::string>(), [&]{ Write(Messages::InvalidExitCommand); }));
+        cmds.push_back(commands.Get("Exit: Yes"));
+        cmds.push_back(commands.Get("Exit: No"));
+        cmds.push_back(commands.Get("Exit: Unknown"));
     }
 
     return cmds;
@@ -462,7 +466,7 @@ std::vector<Command> TextBasedGame::GetCommands() {
 /* player interaction */
 
 void TextBasedGame::TryMove(Direction d) {
-    std::string targetRoomName = rooms.at(currentRoom).GetPath(d);
+    std::string targetRoomName = rooms.Get(currentRoom).GetPath(d);
     
     /* if player cannot go that way */
     if (targetRoomName == "") {
@@ -470,21 +474,21 @@ void TextBasedGame::TryMove(Direction d) {
     }
     /* if they can */
     else {
-        currentRoom = rooms.at(currentRoom).GetPath(d);
+        currentRoom = targetRoomName;
         graphics->SetBackgroundImage(currentRoom);
-        Write(fmt::format("You went {}.\n{}", ReprDirection(d), rooms.at(currentRoom).GetMessage(Room::Message::OnEnter)));
+        Write(fmt::format("You went {}.\n{}", DirectionRepr(d, false), rooms.Get(currentRoom).GetMessage(Room::Message::OnEnter)));
     }
 }
 
 void TextBasedGame::TryTakeItem(std::string itemName) {
     bool inInv = IsItemInInv(itemName);
     bool inRoom = IsItemInRoom(itemName, currentRoom);
-    Item::Flags flags = items.at(itemName).GetFlags();
+    Item::Flags flags = items.Get(itemName).GetFlags();
     if (!inInv && inRoom && flags.canCarry) {
         player.AddItemToInv(itemName);
-        rooms.at(currentRoom).RemoveItem(itemName);
-        items.at(itemName).GetAttrs().isFound = true;
-        Write(fmt::format("You took the {}.", items.at(itemName).GetRepr()));
+        rooms.Get(currentRoom).RemoveItem(itemName);
+        items.Get(itemName).GetAttrs().isFound = true;
+        Write(fmt::format("You took the {}.", items.Get(itemName).GetRepr()));
     } else if (inInv) {
         Write(Messages::InvalidTakeHolding);
     } else if (!inRoom) {
@@ -501,8 +505,8 @@ void TextBasedGame::TryDropItem(std::string itemName) {
     bool inRoom = IsItemInRoom(itemName, currentRoom);
     if (inInv && !inRoom) {
         player.RemoveItemFromInv(itemName);
-        rooms.at(currentRoom).AddItem(itemName);
-        Write(fmt::format("You dropped the {}.", items.at(itemName).GetRepr()));
+        rooms.Get(currentRoom).AddItem(itemName);
+        Write(fmt::format("You dropped the {}.", items.Get(itemName).GetRepr()));
     } else if (!inInv) {
         Write(Messages::InvalidDrop);
     } else if (inRoom) {
@@ -518,7 +522,7 @@ void TextBasedGame::TryInspectItem(std::string itemName) {
     bool inRoom = IsItemInRoom(itemName, currentRoom);
 
     if (inInv || inRoom) {
-        Write(items.at(itemName).GetMessage(Item::Message::OnInspect));
+        Write(items.Get(itemName).GetMessage(Item::Message::OnInspect));
     } else {
         Write(Messages::InvalidInspect);
     }
@@ -526,7 +530,7 @@ void TextBasedGame::TryInspectItem(std::string itemName) {
 
 
 bool TextBasedGame::IsItemInRoom(std::string itemName, std::string roomName) {
-    auto items = rooms.at(roomName).GetItems();
+    auto items = rooms.Get(roomName).GetItems();
     return std::find(items.begin(), items.end(), itemName) != items.end();
 }
 
@@ -536,7 +540,7 @@ bool TextBasedGame::IsItemInInv(std::string itemName) {
 }
 
 std::string TextBasedGame::FullItemRepr(std::string itemName) {
-    std::string repr = items.at(itemName).GetRepr();
+    std::string repr = items.Get(itemName).GetRepr();
     for (char c : "aeiou") {
         if (repr[0] == c || repr[0] == c - 32) {
             return fmt::format("an {}", repr);
@@ -565,7 +569,7 @@ std::string TextBasedGame::InventoryRepr() {
 }
 
 std::string TextBasedGame::CurrentRoomRepr() {
-    auto roomItems = rooms.at(currentRoom).GetItems();
+    auto roomItems = rooms.Get(currentRoom).GetItems();
     switch(roomItems.size()) {
         case 0: return "There's nothing useful in here.";
         case 1: return fmt::format("You see {}.", FullItemRepr(roomItems[0]));

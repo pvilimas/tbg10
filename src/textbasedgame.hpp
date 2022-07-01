@@ -11,6 +11,7 @@
 #define FMT_HEADER_ONLY
 #include "fmt/core.h"
 
+#include "collection.hpp"
 #include "command.hpp"
 #include "item.hpp"
 #include "room.hpp"
@@ -36,6 +37,7 @@
     TODO much much later - convert to ABC, several base classes for different games
 
 */
+
 class TextBasedGame {
     
     public:
@@ -53,7 +55,12 @@ class TextBasedGame {
     */
     enum GameState {
         /*
+            not initialized yet or in the process of reloading something 
+        */
+        Loading,
+        /*
             normal state of gameplay, player is in this 99% of the time
+            this state doesn't need any init logic in SetState()
         */
         Playing,
         /*
@@ -169,19 +176,9 @@ class TextBasedGame {
     /*  the current state of the game (see GameState)  */
     GameState state;
 
-    /*
-        map of all rooms of the game
-        key: the name, which is also map[key].name
-        value: room object
-    */
-    std::unordered_map<std::string, Room> rooms;
-
-    /*
-        map of all items of the game
-        key: the name, which is also map[key].name
-        value: item object
-    */
-    std::unordered_map<std::string, Item> items;
+    Collection<Command> commands;
+    Collection<Item> items;
+    Collection<Room> rooms;
 
     /*
         name of the room the player is currently in
@@ -214,6 +211,11 @@ class TextBasedGame {
         pretty much just deletes the graphics instance
     */
     ~TextBasedGame();
+
+    void Init();
+    void InitCommands();
+    void InitRooms();
+    void InitItems();
 
     /*
         Runs the entire game loop
