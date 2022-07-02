@@ -2,6 +2,19 @@
 
 /* ------- TEXTBASEDGAME ------- */
 
+bool TextBasedGame::StrEq(const std::string& a, const std::string& b) {
+    unsigned int sz = a.size();
+    if (b.size() != sz) {
+        return false;
+    }
+    for (unsigned int i = 0; i < sz; ++i) {
+        if (std::tolower(a[i]) != std::tolower(b[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 TextBasedGame::TextBasedGame() {
     graphics = new Graphics();
     state = GameState::Loading;
@@ -370,7 +383,7 @@ void TextBasedGame::UpdateHint() {
     for (auto &cmd : GetCommands()) {
         for (auto &hint : cmd.GetHints()) {
             // return the first match found
-            if (hint.substr(0, len) == input) {
+            if (StrEq(hint.substr(0, len), input)) {
                 // npos = "go to the end of the string"
                 graphics->SetHint(hint.substr(len, std::string::npos));
                 return;

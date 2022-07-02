@@ -1,6 +1,7 @@
 #ifndef __GRAPHICS__
 #define __GRAPHICS__
 
+#include <cctype>
 #include <iostream>
 #include <queue>
 #include <string>

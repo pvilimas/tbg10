@@ -189,6 +189,9 @@ class TextBasedGame {
 
     public:
 
+    /*  case-insensitive string compare - returns true if a == b  */
+    static bool StrEq(const std::string& a, const std::string& b);
+
     /*
         TextBasedGame constructor - initializeaz:
         - graphics instance

@@ -3,9 +3,9 @@
 
 /*
     TODO:
-
-    - deal with any other TODOs
     
+    - set layout <s/m/l>
+
     - make branches for
         - more lines of text
         - graphics scaling
@@ -14,6 +14,7 @@
 
     - other small changes
         - hidden dialogoptions
+        - case insensitive hints
 
     current assumptions:
     - inv starts empty - keep it that way
