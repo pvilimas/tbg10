@@ -56,14 +56,7 @@ class Room {
         avoids mutability issues/accidental shared instance, makes a new one every time
         called as a constructor argument, not a default arg
     */
-    static inline auto MakeEmptyPaths = []{
-        return std::unordered_map<Direction, std::string>({
-            { Direction::North, "" },
-            { Direction::South, "" },
-            { Direction::East, "" },
-            { Direction::West, "" },
-        });
-    };
+    static std::unordered_map<Direction, std::string> MakeEmptyPaths();
 
     /*
         Room constructor - example call:

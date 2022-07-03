@@ -1,6 +1,7 @@
 #ifndef __GRAPHICS__
 #define __GRAPHICS__
 
+#include <array>
 #include <cctype>
 #include <iostream>
 #include <queue>
@@ -31,7 +32,7 @@ class Graphics {
         Different text speeds to display textOut at
         can be set either with s/m/f or 1/2/3
     */
-    enum class TextSpeed : uint8_t {
+    enum class TextSpeed {
         Slow = 1,
         Medium = 2,
         Fast = 3,
@@ -60,6 +61,57 @@ class Graphics {
         Default = Low1080p
     };
 
+     /*
+        window title (invisible with FLAG_WINDOW_UNDECORATED btw)
+        also actual title if WIN_UNDEC is used
+    */
+    static inline constexpr const char* TitleText = "Textbasedgame";
+    
+    /*
+        prompt to display before user input, should always be "> "
+        the length is most likely accounted for everywhere (prob no risk of segfault if diff len)
+    */
+    static inline constexpr const char* PlayerPrompt = "> ";
+
+    /*  default and initial window width  */
+    static inline constexpr int DefaultWinWidth = 644;
+
+    /*  default and initial window height  */
+    static inline constexpr int DefaultWinHeight = 550;
+
+    /*
+        how many characters the player can type in their box
+        if len(textIn) = this, then any keyinput besides BACKSPACE will be ignored
+        not including "> " which makes it 65
+    */
+    static inline constexpr size_t LineInLimit = 63;
+
+    /*
+        how many characters can go on each line of game text
+        not sure about overflow/wrapping (drawing 66 characters)
+        don't try that pls, make sure all messages do not overflow
+    */
+    static inline constexpr size_t LineOutLimit = 65;
+
+    /*  how many lines of game text there are  */
+    static inline constexpr size_t LineOutCount = 6;
+
+    /*  the color of the frame/border  */
+    static inline constexpr Color FrameColor = Color {0xAA, 0xAA, 0xAA, 255};
+
+    /*  the line thickness of the frame/border  */
+    static inline constexpr int FrameThick = 2;
+    /*
+        the font size used to draw fonts - should be the same as AssetManager::fontSize,
+        which is used to load fonts
+    */
+    static inline constexpr int FontSize = AssetManager::FontSize; // 20
+    
+    /*
+        the font spacing used to draw fonts - see above/todos
+    */
+    static inline constexpr float FontSpacing = 0.6;
+
     private:
 
     /*  manages all the images and fonts  */
@@ -71,15 +123,15 @@ class Graphics {
     /*  what the player currently has typed in their box  */
     std::vector<char> textIn;
     
-    /*  the 4 lines of game text currently displayed on screen  */
-    std::vector<char> textOut[4];
+    /*  the lines of game text currently displayed on screen  */
+    std::array<std::vector<char>, Graphics::LineOutCount> textOut;
     
     /*
         the current hint being displayed
         when the user hits tab, this will be appended to textIn
     */
     std::string textInHint;
-    
+
     /*  name of the image we are currently drawing, within assetmanager  */
     std::string currentImage;
     
@@ -89,8 +141,8 @@ class Graphics {
     /*  controls screen size based on DPI - currently unused  */
     Resolution resolutionScaleFactor;
 
-    /*  manages text scrolling, 4 lines  */
-    std::vector<std::queue<char>> textOutScroll;
+    /*  manages text scrolling  */
+    std::array<std::queue<char>, Graphics::LineOutCount> textOutScroll;
     
     /*  used to control scroll speed of text and cursor blink, and anything else later that is done every n frames  */
     int frameCount;
@@ -114,57 +166,6 @@ class Graphics {
     CursorStyle cursorStyle;
 
     public:
-
-    /*
-        window title (invisible with FLAG_WINDOW_UNDECORATED btw)
-        also actual title if WIN_UNDEC is used
-    */
-    static inline constexpr const char* TitleText = "Textbasedgame";
-    
-    /*
-        prompt to display before user input, should always be "> "
-        the length is most likely accounted for everywhere (prob no risk of segfault if diff len)
-    */
-    static inline constexpr const char* PlayerPrompt = "> ";
-
-    /*  default and initial window width  */
-    static inline constexpr int DefaultWinWidth = 644;
-
-    /*  default and initial window height  */
-    static inline constexpr int DefaultWinHeight = 506;
-
-    /*
-        how many characters the player can type in their box
-        if len(textIn) = this, then any keyinput besides BACKSPACE will be ignored
-        not including "> " which makes it 65
-    */
-    static inline constexpr int LineInLimit = 63;
-
-    /*
-        how many characters can go on each line of game text
-        not sure about overflow/wrapping (drawing 66 characters)
-        don't try that pls, make sure all messages do not overflow
-    */
-    static inline constexpr int LineOutLimit = 65;
-
-    /*  how many lines of game text there are  */
-    static inline constexpr int LineOutCount = 4;
-
-    /*  the color of the frame/border  */
-    static inline constexpr Color FrameColor = Color {0xAA, 0xAA, 0xAA, 255};
-
-    /*  the line thickness of the frame/border  */
-    static inline constexpr int FrameThick = 2;
-    /*
-        the font size used to draw fonts - should be the same as AssetManager::fontSize,
-        which is used to load fonts
-    */
-    static inline constexpr int FontSize = AssetManager::FontSize; // 20
-    
-    /*
-        the font spacing used to draw fonts - see above/todos
-    */
-    static inline constexpr float FontSpacing = 0.6;
 
     /*
         converts a vector of chars to a string
@@ -199,13 +200,19 @@ class Graphics {
     */
     void NormalizeWindowSize();
 
+
+    /*
+        Draw everything onto renderTexture and return it
+    */
+    RenderTexture& Render();
+
     /*
         draws everything to the screen, and some other stuff, including:
         - text scrolling/purge queue
         - counts frames (just adds 1 each time to the counter)
         - background
         - current texture
-        - all 5 lines of text
+        - all 7 lines of text
         - cursor (w/ blinking)
         - rest of the UI
 
@@ -272,6 +279,7 @@ class Graphics {
 
     /*
         set the current image (parameter is whatever the image name is within assetmanager)
+        updates next frame i think
     */
     void SetBackgroundImage(std::string newImageName);
 

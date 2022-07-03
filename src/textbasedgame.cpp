@@ -26,21 +26,22 @@ TextBasedGame::~TextBasedGame() {
 
 void TextBasedGame::Init() {
 
-    currentRoom = "Kitchen";
-
     InitRooms();
     InitItems();
     InitCommands();
 
     state = GameState::Playing;
+
+    SetCurrentRoom(TextBasedGame::StartingRoom);
     Write(fmt::format("You are in the {}.", rooms.Get(currentRoom).GetRepr()));
+    Write("You are in the kitchen\nline 2\n3\n4\n5\n6");
 }
 
 void TextBasedGame::InitRooms() {
 
     /* creating */
 
-    for (auto &room : std::vector<Room>{
+    for (auto& room : std::vector<Room>{
         Room("Kitchen", "kitchen", Room::MakeEmptyPaths(), std::unordered_map<Room::Message, std::string>{
             { Room::Message::OnEnter, "You have entered the kitchen." },
             { Room::Message::OnLook, "You are in the kitchen." }
@@ -128,7 +129,7 @@ void TextBasedGame::InitCommands() {
     for (auto& [name, item] : items) {
         auto repr = item.GetRepr();
 
-        /* no hints versions of these are to be used when the player isn't supposed to be getting hints about it */
+        /* no hints versions of these are to be used when the player isn't supposed to be getting hints about it - see GetCommands() */
 
         commands.Add(fmt::format("Take Item: {}", name), Command(fmt::format("(take|pick up) {}", name), { fmt::format("take {}", repr), fmt::format("pick up {}", repr) }, [&]{ TryTakeItem(name); }));
         commands.Add(fmt::format("Take Item: {} (No Hints)", name), Command(fmt::format("(take|pick up) {}", name), {}, [&]{ TryTakeItem(name); }));
@@ -307,7 +308,6 @@ std::string TextBasedGame::Read() {
     return graphics->GetTextIn();
 }
 
-/* Eval(Read()) gets called when user hits enter */
 void TextBasedGame::Eval(std::string input) {
     Clear();
     for (auto &cmd : GetCommands()) {
@@ -343,7 +343,7 @@ void TextBasedGame::Write(std::string str) {
     }
 
     /* write all the lines */
-    for (int i = 0; i < Graphics::LineOutCount; i++) {
+    for (size_t i = 0; i < Graphics::LineOutCount; i++) {
         graphics->SetTextOut(res.at(i), i);
     }
 }
@@ -428,7 +428,7 @@ std::vector<Command> TextBasedGame::GetCommands() {
             cmds.push_back(commands.Get("Check Inventory"));
 
             /* take/drop items, special commands */
-
+            x:
             for (auto& [name, item] : items) {
                 auto hintText = item.GetAttrs().isFound? "" : " (No Hints)";
                 bool inRoom = IsItemInRoom(name, currentRoom),
@@ -550,6 +550,10 @@ void TextBasedGame::TryInspectItem(std::string itemName) {
     }
 }
 
+void TextBasedGame::SetCurrentRoom(std::string newRoomName) {
+    currentRoom = newRoomName;
+    graphics->SetBackgroundImage(newRoomName);
+}
 
 bool TextBasedGame::IsItemInRoom(std::string itemName, std::string roomName) {
     auto items = rooms.Get(roomName).GetItems();
@@ -562,13 +566,15 @@ bool TextBasedGame::IsItemInInv(std::string itemName) {
 }
 
 std::string TextBasedGame::FullItemRepr(std::string itemName) {
+    bool startsWithVowel = false;
     std::string repr = items.Get(itemName).GetRepr();
     for (char c : "aeiou") {
         if (repr[0] == c || repr[0] == c - 32) {
-            return fmt::format("an {}", repr);
+            startsWithVowel = true;
+            break;
         }
     }
-    return fmt::format("a {}", repr);
+    return fmt::format(startsWithVowel ? "an {}" : "a {}", repr);
 }
 
 std::string TextBasedGame::InventoryRepr() {

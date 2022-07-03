@@ -1,5 +1,14 @@
 #include "room.hpp"
 
+std::unordered_map<Direction, std::string> Room::MakeEmptyPaths(){
+    return std::unordered_map<Direction, std::string>({
+        { Direction::North, "" },
+        { Direction::South, "" },
+        { Direction::East, "" },
+        { Direction::West, "" },
+    });
+}
+
 Room::Room(
     std::string _name,
     std::string _repr,

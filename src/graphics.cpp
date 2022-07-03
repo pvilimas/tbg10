@@ -9,7 +9,7 @@ Graphics::Graphics() {
     /* init everything */
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED);
     InitWindow(Graphics::DefaultWinWidth, DefaultWinHeight, Graphics::TitleText);
-    
+
     /* only way to exit is by typing exit/q */
     SetExitKey(KEY_NULL);
     SetTargetFPS(60);
@@ -34,41 +34,32 @@ Graphics::Graphics() {
     /* don't think this does anything with FLAG_WINDOW_UNDECORATED */
     // SetWindowIcon(LoadImageFromTexture(assets.GetTexture("Bedroom")));
 
-    /*
-        initialize textIn, textOut[], hint
-    */
+    /* initialize textIn, textOut[], hint */
 
-    textOut[0] = std::vector<char>();
-    textOut[1] = std::vector<char>();
-    textOut[2] = std::vector<char>();
-    textOut[3] = std::vector<char>();
-    textIn = std::vector<char>();
+    for (auto& v : textOut) {
+        v = std::vector<char>{};
+    }
+
+    textIn = std::vector<char>{};
     textInHint = "";
 
-    /*
-        initialize text scroll queues
-    */
+    /* initialize text scroll queues */
 
-    textOutScroll = std::vector<std::queue<char>>{
-        std::queue<char>(),
-        std::queue<char>(),
-        std::queue<char>(),
-        std::queue<char>(),
-    };
+    for (auto& q : textOutScroll) {
+        q = std::queue<char>{};
+    }
 
     /* counts up from 0 */
     frameCount = 0;
 
     /* default settings */
-    textScrollSpeed = TextSpeed::Default;
-    cursorStyle = CursorStyle::Default;
-    resolutionScaleFactor = Resolution::Default;
+    textScrollSpeed = Graphics::TextSpeed::Default;
+    cursorStyle = Graphics::CursorStyle::Default;
+    resolutionScaleFactor = Graphics::Resolution::Default;
 
-    /*
-        initialize everything else
-    */
+    /* initialize everything else */
+
     windowSize = Vector2 { Graphics::DefaultWinWidth, Graphics::DefaultWinHeight };
-    currentImage = "Kitchen";
     renderTexture = LoadRenderTexture(windowSize.x, windowSize.y);
 }
 
@@ -88,11 +79,11 @@ void Graphics::NormalizeWindowSize() {
     if (w != windowSize.x || h != windowSize.y) {
         // arbitrary as fuck
         if (w >= 2560 && h >= 1600) {
-            resolutionScaleFactor = Resolution::High4k;
+            resolutionScaleFactor = Graphics::Resolution::High4k;
             targetW = Graphics::DefaultWinWidth * 2;
             targetH = Graphics::DefaultWinHeight * 2;
         } else {
-            resolutionScaleFactor = Resolution::Low1080p;
+            resolutionScaleFactor = Graphics::Resolution::Low1080p;
             targetW = Graphics::DefaultWinWidth;
             targetH = Graphics::DefaultWinHeight;
         }
@@ -111,44 +102,13 @@ void Graphics::NormalizeWindowSize() {
 
 }
 
-void Graphics::Draw() {
-
-    // NormalizeWindowSize();
-
-    bool addCharThisFrame = false;
-    
-    switch(textScrollSpeed) {
-        case TextSpeed::Slow : addCharThisFrame = (frameCount % 5 == 0); break; 
-        case TextSpeed::Medium : addCharThisFrame = (frameCount % 3 == 0); break; 
-        case TextSpeed::Fast : addCharThisFrame = true; break; 
-    }
-
+RenderTexture& Graphics::Render() {
     BeginTextureMode(renderTexture);
-    
-    if (purgeQueueNextFrame) {
-        for (int i = 0; i < Graphics::LineOutCount; i++) {
-            while (!textOutScroll.at(i).empty()) {
-                char c = textOutScroll.at(i).front();
-                textOut[i].push_back(c);
-                textOutScroll.at(i).pop();
-            }
-        }
-        purgeQueueNextFrame = false;
-    } else if (addCharThisFrame) {
-        for (int i = 0; i < Graphics::LineOutCount; i++) {
-            if (!textOutScroll.at(i).empty()) {
-                char c = textOutScroll.at(i).front();
-                textOut[i].push_back(c);
-                textOutScroll.at(i).pop();
-                break;
-            }
-        }
-    }
 
     // bg
     ClearBackground(Color {0x22, 0x22, 0x22, 255});
     // input line bg
-    DrawRectangleRec({0, 476, 644, 30}, Color {0x20, 0x20, 0x20, 255});
+    DrawRectangleRec({0, 498, 644, 30}, Color {0x20, 0x20, 0x20, 255});
 
     // picture
     DrawTexture(assets.GetTexture(currentImage.c_str()), 2, 24, WHITE);
@@ -162,27 +122,66 @@ void Graphics::Draw() {
     DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[1]).c_str(), {6, 410}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
     DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[2]).c_str(), {6, 432}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
     DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[3]).c_str(), {6, 454}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[4]).c_str(), {6, 476}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("italic"), MakeStr(textOut[5]).c_str(), {6, 498}, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
     // input line
-    DrawTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Vector2 { 6, 480 }, Graphics::FontSize, Graphics::FontSpacing, RAYWHITE);
+    DrawTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Vector2 { 6, 524 }, Graphics::FontSize, Graphics::FontSpacing, RAYWHITE);
 
     // hint
-    DrawTextEx(assets.GetFont("normal"), (std::string(textIn.size() + 2, ' ') + textInHint).c_str(), Vector2 { 6, 480 }, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
+    DrawTextEx(assets.GetFont("normal"), (std::string(textIn.size() + 2, ' ') + textInHint).c_str(), Vector2 { 6, 524 }, Graphics::FontSize, Graphics::FontSpacing, LIGHTGRAY);
 
     // title border
     DrawRectangleLinesEx(Rectangle {0, 0, 644, 24}, Graphics::FrameThick, Graphics::FrameColor);
     // picture border
     DrawRectangleLinesEx(Rectangle {0, 22, 644, 364}, Graphics::FrameThick, Graphics::FrameColor);
     // text border
-    DrawRectangleLinesEx(Rectangle {0, 384, 644, 120}, Graphics::FrameThick, Graphics::FrameColor);
+    DrawRectangleLinesEx(Rectangle {0, 384, 644, 164}, Graphics::FrameThick, Graphics::FrameColor);
     // I/O separator
-    DrawLineEx({0, 480}, {644, 480}, Graphics::FrameThick, Graphics::FrameColor);
+    DrawLineEx({0, 524}, {644, 524}, Graphics::FrameThick, Graphics::FrameColor);
     
     DrawCursor();
     EndTextureMode();
+    return renderTexture;
+}
+
+void Graphics::Draw() {
+
+    // NormalizeWindowSize();
+
+    bool addCharThisFrame = false;
+    
+    switch(textScrollSpeed) {
+        case Graphics::TextSpeed::Slow : addCharThisFrame = (frameCount % 5 == 0); break; 
+        case Graphics::TextSpeed::Medium : addCharThisFrame = (frameCount % 3 == 0); break; 
+        case Graphics::TextSpeed::Fast : addCharThisFrame = true; break; 
+    }
+
+    
+    if (purgeQueueNextFrame) {
+        for (size_t i = 0; i < Graphics::LineOutCount; i++) {
+            while (!textOutScroll.at(i).empty()) {
+                char c = textOutScroll.at(i).front();
+                textOut[i].push_back(c);
+                textOutScroll.at(i).pop();
+            }
+        }
+        purgeQueueNextFrame = false;
+    } else if (addCharThisFrame) {
+        for (size_t i = 0; i < Graphics::LineOutCount; i++) {
+            if (!textOutScroll.at(i).empty()) {
+                char c = textOutScroll.at(i).front();
+                textOut[i].push_back(c);
+                textOutScroll.at(i).pop();
+                break;
+            }
+        }
+    }
+
+    renderTexture = Render();
     
     BeginDrawing();
-    
-    // negative width to flip it
+
+    // negative width to flip it - opengl shit
     DrawTexturePro(
         renderTexture.texture,
         Rectangle { 0, 0, (float) (renderTexture.texture.width), -(float) (renderTexture.texture.height) },
@@ -195,6 +194,7 @@ void Graphics::Draw() {
         0.0f,
         WHITE
     );
+
     EndDrawing();
 
     frameCount++;
@@ -202,47 +202,40 @@ void Graphics::Draw() {
 
 void Graphics::DrawCursor() {
     
-    // cursor blink
+    // cursor blink - 30 on, 30 off
     if (frameCount % 60 > 30) {
         return;
     }
 
-    Vector2 textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
-    Vector2 singleCharSize = MeasureTextEx(assets.GetFont("normal"), " ", Graphics::FontSize, Graphics::FontSpacing);
+    Vector2 textSize = MeasureTextEx(
+        assets.GetFont("normal"),
+        (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(),
+        Graphics::FontSize,
+        Graphics::FontSpacing
+    );
+    Vector2 singleCharSize = MeasureTextEx(
+        assets.GetFont("normal"),
+        " ",
+        Graphics::FontSize,
+        Graphics::FontSpacing
+    );
+
+
+    float x = textSize.x + 7;
+    float y = textSize.y + 524;
     
     switch(cursorStyle) {
-        case CursorStyle::VerticalBar: {
-            float x = textSize.x + 7;
-            float y = textSize.y + 480;
-            DrawLineEx({x, y - (textSize.y) + 3}, {x, y-1}, 1.25, WHITE);
-            return;
+        case Graphics::CursorStyle::VerticalBar: {
+            return DrawLineEx({x, y - (textSize.y) + 3}, {x, y-1}, 1.25, WHITE);
         }
-        case CursorStyle::Underline: {
-            if (textIn.size() == Graphics::LineInLimit) {
-                textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
-            }
-            float x = textSize.x + 7;
-            float y = textSize.y + 480;
-            DrawLineEx({x, y}, {x + singleCharSize.x, y}, 1.25, WHITE);
-            return;
+        case Graphics::CursorStyle::Underline: {
+            return DrawLineEx({x, y}, {x + singleCharSize.x, y}, 1.25, WHITE);
         }
-        case CursorStyle::OutlineBox: {
-            if (textIn.size() == Graphics::LineInLimit) {
-                textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
-            }
-            float x = textSize.x + 7;
-            float y = textSize.y + 480;
-            DrawRectangleLinesEx({x - 1, y-textSize.y + 2, singleCharSize.x + 1, textSize.y - 2}, 1, WHITE);
-            return;
+        case Graphics::CursorStyle::OutlineBox: {    
+            return DrawRectangleLinesEx({x - 1, y-textSize.y + 2, singleCharSize.x + 1, textSize.y - 2}, 1, WHITE);
         }
-        case CursorStyle::TransparentBox: {
-            if (textIn.size() == Graphics::LineInLimit) {
-                textSize = MeasureTextEx(assets.GetFont("normal"), (Graphics::PlayerPrompt + MakeStr(textIn)).c_str(), Graphics::FontSize, Graphics::FontSpacing);
-            }
-            float x = textSize.x + 7;
-            float y = textSize.y + 480;
-            DrawRectangleRec({x - 1, y-textSize.y + 3, singleCharSize.x + 1, textSize.y - 3}, Color {180, 180, 180, 120});
-            return;
+        case Graphics::CursorStyle::TransparentBox: {
+            return DrawRectangleRec({x - 1, y-textSize.y + 3, singleCharSize.x + 1, textSize.y - 3}, Color {180, 180, 180, 120});
         }
     }
 }
@@ -297,7 +290,7 @@ void Graphics::ChangeTextSpeed(Graphics::TextSpeed newSpeed) {
     textScrollSpeed = newSpeed;
 }
 
-void Graphics::ChangeCursorStyle(CursorStyle newStyle) {
+void Graphics::ChangeCursorStyle(Graphics::CursorStyle newStyle) {
     cursorStyle = newStyle;
 }
 

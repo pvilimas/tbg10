@@ -141,6 +141,8 @@ class TextBasedGame {
         static inline std::string UnknownError = "ERROR_SELF_DESTRUCTING_IN_5_SEC";
     };
 
+    static inline std::string StartingRoom = "Kitchen";
+
     /*
         Everything to do with the player:
         - inventory stored here
@@ -336,6 +338,9 @@ class TextBasedGame {
         - InvalidInspect if it's nowhere to be seen (inv or currentroom)
     */
     void TryInspectItem(std::string itemName);
+
+    /*  sets currentroom and graphics.bgimage  */
+    void SetCurrentRoom(std::string newRoomName);
 
     /*  is this item in this room?  */
     bool IsItemInRoom(std::string itemName, std::string roomName);
